@@ -1,6 +1,193 @@
 import { Category } from '../types/game';
 
+// Helper function to get all locations from all categories
+const getAllLocations = (categories: Category[]) => {
+  return categories.flatMap(category => 
+    category.locations.map(location => ({
+      name: `${location.name} (${category.name})`
+    }))
+  );
+};
+
 export const categories: Category[] = [
+  {
+    name: "Roulette",
+    locations: getAllLocations([
+      {
+        name: "Restaurant",
+        locations: [
+          { name: "Italian Restaurant" },
+          { name: "Fast Food Joint" },
+          { name: "Sushi Bar" },
+          { name: "Pizza Place" },
+          { name: "Mexican Restaurant" },
+          { name: "Steakhouse" },
+          { name: "Café" },
+          { name: "Food Court" },
+          { name: "Diner" },
+          { name: "Food Truck" },
+          { name: "Thai Restaurant" },
+          { name: "Indian Restaurant" },
+          { name: "Greek Restaurant" },
+          { name: "Chinese Restaurant" },
+          { name: "Korean BBQ" },
+          { name: "Vietnamese Restaurant" },
+          { name: "Brazilian Steakhouse" },
+          { name: "Seafood Restaurant" },
+          { name: "Vegetarian Restaurant" },
+          { name: "Halal Restaurant" }
+        ]
+      },
+      {
+        name: "Hospital",
+        locations: [
+          { name: "Emergency Room" },
+          { name: "Operating Room" },
+          { name: "Pediatric Ward" },
+          { name: "Intensive Care Unit" },
+          { name: "Laboratory" },
+          { name: "Pharmacy" },
+          { name: "Maternity Ward" },
+          { name: "Rehabilitation Center" },
+          { name: "Mental Health Ward" },
+          { name: "Radiology Department" },
+          { name: "Dental Clinic" },
+          { name: "Blood Bank" },
+          { name: "Burn Unit" },
+          { name: "Cardiology Department" },
+          { name: "Oncology Ward" },
+          { name: "Orthopedic Department" },
+          { name: "Neurology Department" },
+          { name: "Physical Therapy" },
+          { name: "Ambulance Service" },
+          { name: "Medical Research Center" }
+        ]
+      },
+      {
+        name: "Hotel",
+        locations: [
+          { name: "Luxury Hotel" },
+          { name: "Beach Resort" },
+          { name: "Mountain Lodge" },
+          { name: "City Hotel" },
+          { name: "Spa Resort" },
+          { name: "Casino Hotel" },
+          { name: "Boutique Hotel" },
+          { name: "Hostel" },
+          { name: "Motel" },
+          { name: "Bed and Breakfast" },
+          { name: "Heritage Hotel" },
+          { name: "Safari Lodge" },
+          { name: "Ice Hotel" },
+          { name: "Treehouse Hotel" },
+          { name: "Underwater Hotel" },
+          { name: "Desert Camp" },
+          { name: "Floating Hotel" },
+          { name: "Historic Inn" },
+          { name: "Eco Resort" },
+          { name: "Luxury Villa" }
+        ]
+      },
+      {
+        name: "School",
+        locations: [
+          { name: "Elementary School" },
+          { name: "High School" },
+          { name: "University" },
+          { name: "Art School" },
+          { name: "Music School" },
+          { name: "Sports Academy" },
+          { name: "Culinary School" },
+          { name: "Military Academy" },
+          { name: "Language School" },
+          { name: "Dance Studio" },
+          { name: "Medical School" },
+          { name: "Law School" },
+          { name: "Engineering College" },
+          { name: "Business School" },
+          { name: "Film School" },
+          { name: "Theater School" },
+          { name: "Architecture School" },
+          { name: "Veterinary School" },
+          { name: "Agricultural College" },
+          { name: "Maritime Academy" }
+        ]
+      },
+      {
+        name: "Transport",
+        locations: [
+          { name: "Airport" },
+          { name: "Train Station" },
+          { name: "Bus Terminal" },
+          { name: "Subway Station" },
+          { name: "Cruise Ship" },
+          { name: "Ferry Terminal" },
+          { name: "Space Station" },
+          { name: "Heliport" },
+          { name: "Cable Car Station" },
+          { name: "Bicycle Shop" },
+          { name: "Car Dealership" },
+          { name: "Gas Station" },
+          { name: "Auto Repair Shop" },
+          { name: "Boat Marina" },
+          { name: "Horse Stable" },
+          { name: "Skateboard Park" },
+          { name: "Segway Rental" },
+          { name: "Hot Air Balloon Launch" },
+          { name: "Hang Gliding Center" },
+          { name: "Parachuting Center" }
+        ]
+      },
+      {
+        name: "Entertainment",
+        locations: [
+          { name: "Movie Theater" },
+          { name: "Concert Hall" },
+          { name: "Amusement Park" },
+          { name: "Zoo" },
+          { name: "Aquarium" },
+          { name: "Circus" },
+          { name: "Comedy Club" },
+          { name: "Bowling Alley" },
+          { name: "Arcade" },
+          { name: "Escape Room" },
+          { name: "Opera House" },
+          { name: "Art Gallery" },
+          { name: "Museum" },
+          { name: "Theater" },
+          { name: "Karaoke Bar" },
+          { name: "Casino" },
+          { name: "Theme Park" },
+          { name: "Water Park" },
+          { name: "Virtual Reality Center" },
+          { name: "Laser Tag Arena" }
+        ]
+      },
+      {
+        name: "MIT",
+        locations: [
+          { name: "Hayden Library" },
+          { name: "Barker Library" },
+          { name: "McCormick Hall" },
+          { name: "Maseeh Hall" },
+          { name: "W11" },
+          { name: "Lobdell" },
+          { name: "Walker Memorial" },
+          { name: "Stata" },
+          { name: "Killian Court" },
+          { name: "Great Dome" },
+          { name: "Sloan" },
+          { name: "Kresge Auditorium" },
+          { name: "Lobby 7" },
+          { name: "Lobby 10" },
+          { name: "Banana Lounge" },
+          { name: "MSA Lounge" },
+          { name: "Z Center" },
+          { name: "Alumni Wang Gym" }
+        ]
+      }
+    ])
+  },
   {
     name: "Restaurant",
     locations: [
