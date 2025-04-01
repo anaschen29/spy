@@ -10,12 +10,25 @@ import {
   FormControl, 
   InputLabel,
   Grid,
-  Paper
+  Paper,
+  Card,
+  CardContent,
+  CardActions,
+  useTheme,
+  alpha
 } from '@mui/material';
 import { categories } from './data/gameData';
 import { GameState, GameSettings, Player } from './types/game';
+import SecurityIcon from '@mui/icons-material/Security';
+import TimerIcon from '@mui/icons-material/Timer';
+import GroupIcon from '@mui/icons-material/Group';
+import CategoryIcon from '@mui/icons-material/Category';
+import PlayArrowIcon from '@mui/icons-material/PlayArrow';
+import StopIcon from '@mui/icons-material/Stop';
+import ReplayIcon from '@mui/icons-material/Replay';
 
 const App: React.FC = () => {
+  const theme = useTheme();
   const [gameState, setGameState] = useState<GameState>({
     settings: {
       numberOfPlayers: 4,
@@ -126,13 +139,47 @@ const App: React.FC = () => {
   };
 
   const renderPlayerCard = (player: Player) => (
-    <Paper sx={{ p: 2 }}>
-      <Typography variant="h6">Player {player.id}</Typography>
-      <Typography>Location: {player.isSpy ? "SPY" : player.location}</Typography>
-      {player.isSpy && (
-        <Typography color="error">You are the Spy!</Typography>
-      )}
-    </Paper>
+    <Card 
+      sx={{ 
+        width: 300,
+        height: 400,
+        display: 'flex',
+        flexDirection: 'column',
+        position: 'relative',
+        background: player.isSpy 
+          ? `linear-gradient(135deg, ${alpha(theme.palette.error.main, 0.1)} 0%, ${alpha(theme.palette.error.main, 0.2)} 100%)`
+          : `linear-gradient(135deg, ${alpha(theme.palette.primary.main, 0.1)} 0%, ${alpha(theme.palette.primary.main, 0.2)} 100%)`,
+        border: `2px solid ${player.isSpy ? theme.palette.error.main : theme.palette.primary.main}`,
+        borderRadius: 2,
+        boxShadow: 3,
+        transition: 'transform 0.2s',
+        '&:hover': {
+          transform: 'scale(1.02)'
+        }
+      }}
+    >
+      <CardContent sx={{ flexGrow: 1, display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center' }}>
+        <Typography variant="h4" gutterBottom>
+          Player {player.id}
+        </Typography>
+        <Box sx={{ mt: 2, textAlign: 'center' }}>
+          <Typography variant="h5" color="text.secondary" gutterBottom>
+            {player.isSpy ? "SPY" : "CIVILIAN"}
+          </Typography>
+          <Typography variant="h6" color={player.isSpy ? "error" : "primary"}>
+            {player.isSpy ? "Unknown Location" : player.location}
+          </Typography>
+        </Box>
+        {player.isSpy && (
+          <Box sx={{ mt: 2, display: 'flex', alignItems: 'center', gap: 1 }}>
+            <SecurityIcon color="error" sx={{ fontSize: 40 }} />
+            <Typography variant="h6" color="error">
+              You are the Spy!
+            </Typography>
+          </Box>
+        )}
+      </CardContent>
+    </Card>
   );
 
   const handleEndGame = () => {
@@ -142,101 +189,144 @@ const App: React.FC = () => {
   return (
     <Container maxWidth="md">
       <Box sx={{ my: 4 }}>
-        <Typography variant="h3" component="h1" gutterBottom align="center">
-          Spy Game
+        <Typography 
+          variant="h2" 
+          component="h1" 
+          gutterBottom 
+          align="center"
+          sx={{ 
+            fontWeight: 'bold',
+            background: `linear-gradient(45deg, ${theme.palette.primary.main} 30%, ${theme.palette.secondary.main} 90%)`,
+            backgroundClip: 'text',
+            textFillColor: 'transparent',
+            mb: 4
+          }}
+        >
+          MSA Spy Game
         </Typography>
 
         {!gameState.isGameStarted ? (
           <Box sx={{ mt: 4 }}>
-            <Grid container spacing={3}>
-              <Grid item xs={12} sm={6}>
-                <TextField
-                  fullWidth
-                  type="number"
-                  label="Number of Players"
-                  value={gameState.settings.numberOfPlayers}
-                  onChange={(e) => setGameState(prev => ({
-                    ...prev,
-                    settings: {
-                      ...prev.settings,
-                      numberOfPlayers: parseInt(e.target.value)
-                    }
-                  }))}
-                />
-              </Grid>
-              <Grid item xs={12} sm={6}>
-                <TextField
-                  fullWidth
-                  type="number"
-                  label="Number of Spies"
-                  value={gameState.settings.numberOfSpies}
-                  onChange={(e) => setGameState(prev => ({
-                    ...prev,
-                    settings: {
-                      ...prev.settings,
-                      numberOfSpies: parseInt(e.target.value)
-                    }
-                  }))}
-                />
-              </Grid>
-              <Grid item xs={12} sm={6}>
-                <TextField
-                  fullWidth
-                  type="number"
-                  label="Timer (minutes)"
-                  value={gameState.settings.timer}
-                  onChange={(e) => setGameState(prev => ({
-                    ...prev,
-                    settings: {
-                      ...prev.settings,
-                      timer: parseInt(e.target.value)
-                    }
-                  }))}
-                />
-              </Grid>
-              <Grid item xs={12} sm={6}>
-                <FormControl fullWidth>
-                  <InputLabel>Category</InputLabel>
-                  <Select
-                    value={gameState.settings.category.name}
-                    label="Category"
-                    onChange={(e) => {
-                      const category = categories.find(c => c.name === e.target.value);
-                      if (category) {
-                        setGameState(prev => ({
-                          ...prev,
-                          settings: {
-                            ...prev.settings,
-                            category
-                          }
-                        }));
+            <Paper 
+              elevation={3} 
+              sx={{ 
+                p: 4, 
+                background: `linear-gradient(135deg, ${alpha(theme.palette.background.paper, 0.9)} 0%, ${alpha(theme.palette.background.paper, 0.95)} 100%)`,
+                borderRadius: 2
+              }}
+            >
+              <Typography variant="h5" gutterBottom align="center" sx={{ mb: 4 }}>
+                Set Up Your Game
+              </Typography>
+              <Grid container spacing={3}>
+                <Grid item xs={12} sm={6}>
+                  <TextField
+                    fullWidth
+                    type="number"
+                    label="Number of Players"
+                    value={gameState.settings.numberOfPlayers}
+                    onChange={(e) => setGameState(prev => ({
+                      ...prev,
+                      settings: {
+                        ...prev.settings,
+                        numberOfPlayers: parseInt(e.target.value)
+                      }
+                    }))}
+                    InputProps={{
+                      startAdornment: <GroupIcon sx={{ mr: 1, color: 'primary.main' }} />
+                    }}
+                  />
+                </Grid>
+                <Grid item xs={12} sm={6}>
+                  <TextField
+                    fullWidth
+                    type="number"
+                    label="Number of Spies"
+                    value={gameState.settings.numberOfSpies}
+                    onChange={(e) => setGameState(prev => ({
+                      ...prev,
+                      settings: {
+                        ...prev.settings,
+                        numberOfSpies: parseInt(e.target.value)
+                      }
+                    }))}
+                    InputProps={{
+                      startAdornment: <SecurityIcon sx={{ mr: 1, color: 'error.main' }} />
+                    }}
+                  />
+                </Grid>
+                <Grid item xs={12} sm={6}>
+                  <TextField
+                    fullWidth
+                    type="number"
+                    label="Timer (minutes)"
+                    value={gameState.settings.timer}
+                    onChange={(e) => setGameState(prev => ({
+                      ...prev,
+                      settings: {
+                        ...prev.settings,
+                        timer: parseInt(e.target.value)
+                      }
+                    }))}
+                    InputProps={{
+                      startAdornment: <TimerIcon sx={{ mr: 1, color: 'primary.main' }} />
+                    }}
+                  />
+                </Grid>
+                <Grid item xs={12} sm={6}>
+                  <FormControl fullWidth>
+                    <InputLabel>Category</InputLabel>
+                    <Select
+                      value={gameState.settings.category.name}
+                      label="Category"
+                      onChange={(e) => {
+                        const category = categories.find(c => c.name === e.target.value);
+                        if (category) {
+                          setGameState(prev => ({
+                            ...prev,
+                            settings: {
+                              ...prev.settings,
+                              category
+                            }
+                          }));
+                        }
+                      }}
+                      startAdornment={<CategoryIcon sx={{ mr: 1, color: 'primary.main' }} />}
+                    >
+                      {categories.map(category => (
+                        <MenuItem key={category.name} value={category.name}>
+                          {category.name}
+                        </MenuItem>
+                      ))}
+                    </Select>
+                  </FormControl>
+                </Grid>
+                <Grid item xs={12}>
+                  <Button
+                    fullWidth
+                    variant="contained"
+                    color="primary"
+                    onClick={startGame}
+                    startIcon={<PlayArrowIcon />}
+                    sx={{ 
+                      py: 2,
+                      fontSize: '1.1rem',
+                      background: `linear-gradient(45deg, ${theme.palette.primary.main} 30%, ${theme.palette.secondary.main} 90%)`,
+                      '&:hover': {
+                        background: `linear-gradient(45deg, ${theme.palette.primary.dark} 30%, ${theme.palette.secondary.dark} 90%)`,
                       }
                     }}
                   >
-                    {categories.map(category => (
-                      <MenuItem key={category.name} value={category.name}>
-                        {category.name}
-                      </MenuItem>
-                    ))}
-                  </Select>
-                </FormControl>
+                    Start Game
+                  </Button>
+                </Grid>
               </Grid>
-              <Grid item xs={12}>
-                <Button
-                  fullWidth
-                  variant="contained"
-                  color="primary"
-                  onClick={startGame}
-                >
-                  Start Game
-                </Button>
-              </Grid>
-            </Grid>
+            </Paper>
           </Box>
         ) : (
           <Box sx={{ mt: 4 }}>
             {isRevealPhase ? (
-              <>
+              <Box sx={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 3 }}>
                 <Typography variant="h4" gutterBottom align="center">
                   Player {currentPlayerIndex + 1}'s Turn
                 </Typography>
@@ -244,61 +334,98 @@ const App: React.FC = () => {
                   Press SPACE to {isCardVisible ? 'hide' : 'show'} card
                 </Typography>
                 {isCardVisible && renderPlayerCard(gameState.players[currentPlayerIndex])}
-              </>
+              </Box>
             ) : (
               <>
-                <Typography variant="h4" gutterBottom align="center">
-                  Time Remaining: {formatTime(gameState.currentTime)}
-                </Typography>
-                <Typography variant="h5" gutterBottom align="center" color="text.secondary">
-                  Game in Progress
-                </Typography>
-                <Grid container spacing={2}>
+                <Paper 
+                  elevation={3} 
+                  sx={{ 
+                    p: 3, 
+                    mb: 3,
+                    background: `linear-gradient(135deg, ${alpha(theme.palette.primary.main, 0.1)} 0%, ${alpha(theme.palette.primary.main, 0.2)} 100%)`,
+                    borderRadius: 2
+                  }}
+                >
+                  <Typography variant="h4" gutterBottom align="center">
+                    Time Remaining: {formatTime(gameState.currentTime)}
+                  </Typography>
+                  <Typography variant="h5" gutterBottom align="center" color="text.secondary">
+                    {isGameEnded ? "Game Over!" : "Game in Progress"}
+                  </Typography>
+                </Paper>
+                <Grid container spacing={2} justifyContent="center">
                   {gameState.players.map(player => (
-                    <Grid item xs={12} sm={6} md={4} key={player.id}>
-                      <Paper sx={{ p: 2, textAlign: 'center' }}>
+                    <Grid item key={player.id}>
+                      <Card 
+                        sx={{ 
+                          width: 200,
+                          height: 300,
+                          display: 'flex',
+                          flexDirection: 'column',
+                          alignItems: 'center',
+                          justifyContent: 'center',
+                          background: isGameEnded 
+                            ? (player.isSpy 
+                                ? `linear-gradient(135deg, ${alpha(theme.palette.error.main, 0.1)} 0%, ${alpha(theme.palette.error.main, 0.2)} 100%)`
+                                : `linear-gradient(135deg, ${alpha(theme.palette.primary.main, 0.1)} 0%, ${alpha(theme.palette.primary.main, 0.2)} 100%)`)
+                            : `linear-gradient(135deg, ${alpha(theme.palette.grey[300], 0.5)} 0%, ${alpha(theme.palette.grey[400], 0.5)} 100%)`,
+                          border: isGameEnded
+                            ? `2px solid ${player.isSpy ? theme.palette.error.main : theme.palette.primary.main}`
+                            : `2px dashed ${theme.palette.grey[400]}`,
+                          borderRadius: 2,
+                          boxShadow: isGameEnded ? 3 : 0
+                        }}
+                      >
                         <Typography variant="h6">Player {player.id}</Typography>
-                        <Typography>Location: Hidden</Typography>
-                      </Paper>
+                        {isGameEnded ? (
+                          <>
+                            <Typography variant="h5" color={player.isSpy ? "error" : "primary"} gutterBottom>
+                              {player.isSpy ? "SPY" : "CIVILIAN"}
+                            </Typography>
+                            <Typography color="text.secondary">
+                              {player.isSpy ? "Unknown Location" : player.location}
+                            </Typography>
+                            {player.isSpy && (
+                              <Box sx={{ mt: 2, display: 'flex', alignItems: 'center', gap: 1 }}>
+                                <SecurityIcon color="error" sx={{ fontSize: 30 }} />
+                                <Typography color="error">
+                                  You are the Spy!
+                                </Typography>
+                              </Box>
+                            )}
+                          </>
+                        ) : (
+                          <Typography color="text.secondary">Location: Hidden</Typography>
+                        )}
+                      </Card>
                     </Grid>
                   ))}
                 </Grid>
-                <Button
-                  fullWidth
-                  variant="contained"
-                  color="secondary"
-                  onClick={handleEndGame}
-                  sx={{ mt: 2 }}
-                >
-                  End Game
-                </Button>
+                {!isGameEnded && (
+                  <Button
+                    fullWidth
+                    variant="contained"
+                    color="secondary"
+                    onClick={handleEndGame}
+                    startIcon={<StopIcon />}
+                    sx={{ mt: 3 }}
+                  >
+                    End Game
+                  </Button>
+                )}
+                {isGameEnded && (
+                  <Button
+                    fullWidth
+                    variant="contained"
+                    color="primary"
+                    onClick={() => setGameState(prev => ({ ...prev, isGameStarted: false }))}
+                    startIcon={<ReplayIcon />}
+                    sx={{ mt: 3 }}
+                  >
+                    Play Again
+                  </Button>
+                )}
               </>
-            )}
-            {isGameEnded && (
-              <Box sx={{ mt: 4 }}>
-                <Typography variant="h4" gutterBottom align="center" color="error">
-                  Game Over!
-                </Typography>
-                <Typography variant="h5" gutterBottom align="center">
-                  The Spies were:
-                </Typography>
-                <Grid container spacing={2}>
-                  {gameState.players.map(player => (
-                    <Grid item xs={12} sm={6} md={4} key={player.id}>
-                      {renderPlayerCard(player)}
-                    </Grid>
-                  ))}
-                </Grid>
-                <Button
-                  fullWidth
-                  variant="contained"
-                  color="primary"
-                  onClick={() => setGameState(prev => ({ ...prev, isGameStarted: false }))}
-                  sx={{ mt: 2 }}
-                >
-                  Play Again
-                </Button>
-              </Box>
             )}
           </Box>
         )}
