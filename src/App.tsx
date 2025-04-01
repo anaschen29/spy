@@ -129,8 +129,32 @@ const App: React.FC = () => {
       }
     };
 
+    const handleTouch = (event: TouchEvent) => {
+      if (isRevealPhase) {
+        event.preventDefault(); // Prevent scrolling
+        if (isCardVisible) {
+          // Hide current card and move to next player
+          setIsCardVisible(false);
+          if (currentPlayerIndex < gameState.players.length - 1) {
+            setCurrentPlayerIndex(prev => prev + 1);
+          } else {
+            // All cards have been shown, start the game
+            setIsRevealPhase(false);
+            setCurrentPlayerIndex(-1);
+          }
+        } else {
+          // Show current card
+          setIsCardVisible(true);
+        }
+      }
+    };
+
     window.addEventListener('keydown', handleKeyPress);
-    return () => window.removeEventListener('keydown', handleKeyPress);
+    window.addEventListener('touchstart', handleTouch, { passive: false });
+    return () => {
+      window.removeEventListener('keydown', handleKeyPress);
+      window.removeEventListener('touchstart', handleTouch);
+    };
   }, [isRevealPhase, currentPlayerIndex, isCardVisible, gameState.players.length]);
 
   useEffect(() => {
@@ -226,6 +250,31 @@ const App: React.FC = () => {
         bgcolor: 'background.default',
         position: 'relative',
         overflow: 'hidden',
+        backgroundImage: `url("/spy-game-og.png")`,
+        backgroundSize: 'contain',
+        backgroundPosition: 'center',
+        backgroundRepeat: 'no-repeat',
+        '&::before': {
+          content: '""',
+          position: 'absolute',
+          top: 0,
+          left: 0,
+          right: 0,
+          bottom: 0,
+          background: `url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='100' height='100' viewBox='0 0 100 100'%3E%3Cg fill='%239C92AC' fill-opacity='0.1'%3E%3Cpath d='M0 0h100v100H0z'/%3E%3Cpath d='M0 0h50v50H0z'/%3E%3Cpath d='M50 50h50v50H50z'/%3E%3Cpath d='M25 25h50v50H25z'/%3E%3C/g%3E%3C/svg%3E")`,
+          opacity: 0.1,
+          zIndex: 0
+        },
+        '&::after': {
+          content: '""',
+          position: 'absolute',
+          top: 0,
+          left: 0,
+          right: 0,
+          bottom: 0,
+          background: 'rgba(18, 18, 18, 0.85)',
+          zIndex: 0
+        }
       }}
     >
       <Box sx={{
@@ -433,7 +482,7 @@ const App: React.FC = () => {
                     Player {currentPlayerIndex + 1}'s Turn
                   </Typography>
                   <Typography variant="body1" gutterBottom align="center" color="text.secondary">
-                    Press SPACE to {isCardVisible ? 'hide' : 'show'} card
+                    Press SPACE or tap to {isCardVisible ? 'hide' : 'show'} card
                   </Typography>
                   {isCardVisible && renderPlayerCard(gameState.players[currentPlayerIndex])}
                 </Box>
