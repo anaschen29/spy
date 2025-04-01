@@ -353,5 +353,28 @@ export const categories: Category[] = [
       { name: "Vatican City" },
       { name: "Palestine" }
     ]
+  },
+  {
+    name: "MIT",
+    locations: [
+      { name: "Hayden Library" },
+      { name: "Barker Library" },
+      { name: "McCormick Hall" },
+      { name: "Maseeh Hall" },
+      { name: "W11" },
+      { name: "Lobdell" },
+      { name: "Walker Memorial" },
+      { name: "Stata" },
+      { name: "Killian Court" },
+      { name: "Great Dome" },
+      { name: "Sloan" },
+      { name: "Kresge Auditorium" },
+      { name: "Lobby 7" },
+      { name: "Lobby 10" },
+      { name: "Banana Lounge" },
+      { name: "MSA Lounge" },
+      { name: "Z Center" },
+      { name: "Alumni Wang Gym" },
+    ]
   }
 ]; 

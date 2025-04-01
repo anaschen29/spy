@@ -2,25 +2,24 @@
   "name": "spy",
   "private": true,
   "version": "0.0.0",
-  "homepage": "https://anaschentouf.github.io/spy",
   "type": "module",
   "scripts": {
     "dev": "vite",
+    "start": "vite",
     "build": "tsc && vite build",
     "lint": "eslint . --ext ts,tsx --report-unused-disable-directives --max-warnings 0",
-    "preview": "vite preview",
-    "predeploy": "npm run build",
-    "deploy": "gh-pages -d dist"
+    "preview": "vite preview"
   },
   "dependencies": {
     "@emotion/react": "^11.11.3",
     "@emotion/styled": "^11.11.0",
     "@mui/icons-material": "^5.15.10",
     "@mui/material": "^5.15.10",
+    "@vitejs/plugin-react": "^4.3.4",
     "react": "^18.2.0",
     "react-dom": "^18.2.0",
-    "react-scripts": "5.0.1",
-    "typescript": "^4.9.5"
+    "typescript": "^4.9.5",
+    "vite": "^6.2.4"
   },
   "eslintConfig": {
     "extends": [
@@ -41,8 +40,8 @@
     ]
   },
   "devDependencies": {
+    "@types/node": "^22.13.17",
     "@types/react": "^19.0.12",
-    "@types/react-dom": "^19.0.4",
-    "gh-pages": "^6.3.0"
+    "@types/react-dom": "^19.0.4"
   }
 }

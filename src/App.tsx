@@ -182,22 +182,30 @@ const App: React.FC = () => {
         }
       }}
     >
-      <CardContent sx={{ flexGrow: 1, display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center' }}>
-        <Typography variant="h4" gutterBottom>
+      <CardContent sx={{ 
+        flexGrow: 1, 
+        display: 'flex', 
+        flexDirection: 'column', 
+        alignItems: 'center', 
+        justifyContent: 'flex-start',
+        pt: 4,
+        gap: 2 
+      }}>
+        <Typography variant="h4">
           Player {player.id}
         </Typography>
-        <Box sx={{ mt: 2, textAlign: 'center' }}>
-          <Typography variant="h5" color="text.secondary" gutterBottom>
-            {player.isSpy ? "SPY" : "CIVILIAN"}
+        <Typography variant="h5" color="text.secondary">
+          {player.isSpy ? "SPY" : "CIVILIAN"}
+        </Typography>
+        {!player.isSpy && (
+          <Typography variant="h6" color="primary">
+            {player.location}
           </Typography>
-          <Typography variant="h6" color={player.isSpy ? "error" : "primary"}>
-            {player.isSpy ? "Unknown Location" : player.location}
-          </Typography>
-        </Box>
+        )}
         {player.isSpy && (
-          <Box sx={{ mt: 2, display: 'flex', alignItems: 'center', gap: 1 }}>
-            <SecurityIcon color="error" sx={{ fontSize: 40 }} />
-            <Typography variant="h6" color="error">
+          <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
+            <SecurityIcon color="error" sx={{ fontSize: 30 }} />
+            <Typography color="error">
               You are the Spy!
             </Typography>
           </Box>
@@ -211,37 +219,61 @@ const App: React.FC = () => {
   };
 
   return (
-    <Box sx={{ 
-      minHeight: '100vh',
-      background: `linear-gradient(135deg, ${alpha(theme.palette.background.default, 0.9)} 0%, ${alpha(theme.palette.background.default, 0.95)} 100%)`,
-      position: 'relative',
-      overflow: 'hidden',
-      '&::before': {
-        content: '""',
+    <Box
+      sx={{
+        minHeight: '100vh',
+        width: '100%',
+        bgcolor: 'background.default',
+        position: 'relative',
+        overflow: 'hidden',
+      }}
+    >
+      <Box sx={{
         position: 'absolute',
         top: 0,
         left: 0,
         right: 0,
         bottom: 0,
-        backgroundImage: `url("data:image/svg+xml,%3Csvg width='100' height='100' viewBox='0 0 100 100' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath d='M11 18c3.866 0 7-3.134 7-7s-3.134-7-7-7-7 3.134-7 7 3.134 7 7 7zm48 25c3.866 0 7-3.134 7-7s-3.134-7-7-7-7 3.134-7 7 3.134 7 7 7zm-43-7c1.657 0 3-1.343 3-3s-1.343-3-3-3-3 1.343-3 3 1.343 3 3 3zm63 31c1.657 0 3-1.343 3-3s-1.343-3-3-3-3 1.343-3 3 1.343 3 3 3zM34 90c1.657 0 3-1.343 3-3s-1.343-3-3-3-3 1.343-3 3 1.343 3 3 3zm56-76c1.657 0 3-1.343 3-3s-1.343-3-3-3-3 1.343-3 3 1.343 3 3 3zM12 86c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm28-65c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm23-11c2.76 0 5-2.24 5-5s-2.24-5-5-5-5 2.24-5 5 2.24 5 5 5zm-6 60c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm29 22c2.76 0 5-2.24 5-5s-2.24-5-5-5-5 2.24-5 5 2.24 5 5 5zM32 63c2.76 0 5-2.24 5-5s-2.24-5-5-5-5 2.24-5 5 2.24 5 5 5zm57-13c2.76 0 5-2.24 5-5s-2.24-5-5-5-5 2.24-5 5 2.24 5 5 5zm-9-21c1.105 0 2-.895 2-2s-.895-2-2-2-2 .895-2 2 .895 2 2 2zM60 91c1.105 0 2-.895 2-2s-.895-2-2-2-2 .895-2 2 .895 2 2 2zM35 41c1.105 0 2-.895 2-2s-.895-2-2-2-2 .895-2 2 .895 2 2 2zM12 60c1.105 0 2-.895 2-2s-.895-2-2-2-2 .895-2 2 .895 2 2 2z' fill='%239C92AC' fill-opacity='0.05' fill-rule='evenodd'/%3E%3C/svg%3E")`,
-        opacity: 0.5,
+        background: `url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='100' height='100' viewBox='0 0 100 100'%3E%3Cg fill='%239C92AC' fill-opacity='0.1'%3E%3Cpath d='M0 0h100v100H0z'/%3E%3Cpath d='M0 0h50v50H0z'/%3E%3Cpath d='M50 50h50v50H50z'/%3E%3Cpath d='M25 25h50v50H25z'/%3E%3C/g%3E%3C/svg%3E")`,
+        opacity: 0.1,
         zIndex: 0
-      },
-      '&::after': {
-        content: '""',
+      }} />
+      <Box sx={{
         position: 'absolute',
-        top: '50%',
-        left: '50%',
-        transform: 'translate(-50%, -50%)',
-        width: '300px',
-        height: '300px',
-        backgroundImage: `url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='%239C92AC' fill-opacity='0.1'%3E%3Cpath d='M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm0 18c-4.41 0-8-3.59-8-8s3.59-8 8-8 8 3.59 8 8-3.59 8-8 8zm-1-13h2v6h-2zm0 8h2v2h-2z'/%3E%3C/svg%3E")`,
+        top: '20%',
+        left: '10%',
+        width: '100px',
+        height: '100px',
+        backgroundImage: `url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='%239C92AC' fill-opacity='0.2'%3E%3Cpath d='M12 1L3 5v6c0 5.55 3.84 10.74 9 12 5.16-1.26 9-6.45 9-12V5l-9-4zm0 2.18l7 3.12v4.7c0 4.83-2.79 9.36-7 11.13-4.21-1.77-7-6.3-7-11.13v-4.7l7-3.12z'/%3E%3C/svg%3E")`,
         backgroundSize: 'contain',
         backgroundRepeat: 'no-repeat',
-        opacity: 0.3,
+        animation: 'float 6s ease-in-out infinite',
         zIndex: 0
-      }
-    }}>
+      }} />
+      <Box sx={{
+        position: 'absolute',
+        top: '60%',
+        right: '15%',
+        width: '80px',
+        height: '80px',
+        backgroundImage: `url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='%239C92AC' fill-opacity='0.2'%3E%3Cpath d='M12 1L3 5v6c0 5.55 3.84 10.74 9 12 5.16-1.26 9-6.45 9-12V5l-9-4zm0 2.18l7 3.12v4.7c0 4.83-2.79 9.36-7 11.13-4.21-1.77-7-6.3-7-11.13v-4.7l7-3.12z'/%3E%3C/svg%3E")`,
+        backgroundSize: 'contain',
+        backgroundRepeat: 'no-repeat',
+        animation: 'float 8s ease-in-out infinite',
+        zIndex: 0
+      }} />
+      <Box sx={{
+        position: 'absolute',
+        top: '30%',
+        right: '25%',
+        width: '120px',
+        height: '120px',
+        backgroundImage: `url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='%239C92AC' fill-opacity='0.2'%3E%3Cpath d='M12 1L3 5v6c0 5.55 3.84 10.74 9 12 5.16-1.26 9-6.45 9-12V5l-9-4zm0 2.18l7 3.12v4.7c0 4.83-2.79 9.36-7 11.13-4.21-1.77-7-6.3-7-11.13v-4.7l7-3.12z'/%3E%3C/svg%3E")`,
+        backgroundSize: 'contain',
+        backgroundRepeat: 'no-repeat',
+        animation: 'float 7s ease-in-out infinite',
+        zIndex: 0
+      }} />
       <Container maxWidth="md" sx={{ position: 'relative', zIndex: 1 }}>
         <Box sx={{ my: 4 }}>
           <Typography 
@@ -433,7 +465,8 @@ const App: React.FC = () => {
                             display: 'flex',
                             flexDirection: 'column',
                             alignItems: 'center',
-                            justifyContent: 'center',
+                            justifyContent: 'flex-start',
+                            pt: 4,
                             background: isGameEnded 
                               ? (player.isSpy 
                                   ? `linear-gradient(135deg, ${alpha(theme.palette.error.main, 0.1)} 0%, ${alpha(theme.palette.error.main, 0.2)} 100%)`
@@ -449,11 +482,11 @@ const App: React.FC = () => {
                           <Typography variant="h6">Player {player.id}</Typography>
                           {isGameEnded ? (
                             <>
-                              <Typography variant="h5" color={player.isSpy ? "error" : "primary"} gutterBottom>
+                              <Typography variant="h5" color={player.isSpy ? "error" : "primary"} sx={{ mt: 2 }}>
                                 {player.isSpy ? "SPY" : "CIVILIAN"}
                               </Typography>
-                              <Typography color="text.secondary">
-                                {player.isSpy ? "Unknown Location" : player.location}
+                              <Typography color="text.secondary" sx={{ mt: 2 }}>
+                                {!player.isSpy && player.location}
                               </Typography>
                               {player.isSpy && (
                                 <Box sx={{ mt: 2, display: 'flex', alignItems: 'center', gap: 1 }}>
@@ -465,7 +498,7 @@ const App: React.FC = () => {
                               )}
                             </>
                           ) : (
-                            <Typography color="text.secondary">Location: Hidden</Typography>
+                            <Typography color="text.secondary" sx={{ mt: 2 }}>Location: Hidden</Typography>
                           )}
                         </Card>
                       </Grid>
