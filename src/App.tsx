@@ -17,7 +17,11 @@ import {
   useTheme,
   alpha,
   IconButton,
-  useMediaQuery
+  useMediaQuery,
+  Dialog,
+  DialogTitle,
+  DialogContent,
+  DialogActions
 } from '@mui/material';
 import { categories } from './data/gameData';
 import { GameState, GameSettings, Player } from './types/game';
@@ -100,6 +104,10 @@ const App: React.FC = () => {
   const [isRevealPhase, setIsRevealPhase] = useState<boolean>(false);
   const [isCardVisible, setIsCardVisible] = useState<boolean>(false);
   const [isGameEnded, setIsGameEnded] = useState<boolean>(false);
+  const [showRestartDialog, setShowRestartDialog] = useState(false);
+  const [showAddPlayerDialog, setShowAddPlayerDialog] = useState(false);
+  const [newPlayerCard, setNewPlayerCard] = useState<Player | null>(null);
+  const [isNewPlayerCardVisible, setIsNewPlayerCardVisible] = useState(false);
 
   const startGame = () => {
     playSound(gameStartSound);
@@ -140,7 +148,7 @@ const App: React.FC = () => {
       ...prev,
       players,
       isGameStarted: true,
-      currentTime: prev.settings.timer * 60
+      currentTime: 0
     }));
     setIsRevealPhase(true);
     setCurrentPlayerIndex(0);
@@ -149,20 +157,19 @@ const App: React.FC = () => {
 
   useEffect(() => {
     let interval: NodeJS.Timeout;
-    if (gameState.isGameStarted && gameState.currentTime > 0 && !isGameEnded) {
+    if (gameState.isGameStarted && !isRevealPhase && gameState.currentTime > 0 && !isGameEnded) {
       interval = setInterval(() => {
         setGameState(prev => ({
           ...prev,
           currentTime: prev.currentTime - 1
         }));
       }, 1000);
-    } else if (gameState.currentTime === 0 && !isGameEnded) {
+    } else if (gameState.currentTime === 0 && !isGameEnded && !isRevealPhase) {
       // Auto end game when time runs out
       setIsGameEnded(true);
-      setIsRevealPhase(false);
     }
     return () => clearInterval(interval);
-  }, [gameState.isGameStarted, gameState.currentTime, isGameEnded]);
+  }, [gameState.isGameStarted, gameState.currentTime, isGameEnded, isRevealPhase]);
 
   useEffect(() => {
     const handleKeyPress = (event: KeyboardEvent) => {
@@ -173,9 +180,13 @@ const App: React.FC = () => {
           if (currentPlayerIndex < gameState.players.length - 1) {
             setCurrentPlayerIndex(prev => prev + 1);
           } else {
-            // All cards have been shown, start the game
+            // All cards have been shown, start the game and timer
             setIsRevealPhase(false);
             setCurrentPlayerIndex(-1);
+            setGameState(prev => ({
+              ...prev,
+              currentTime: prev.settings.timer * 60
+            }));
           }
         } else {
           // Show current card
@@ -193,9 +204,13 @@ const App: React.FC = () => {
           if (currentPlayerIndex < gameState.players.length - 1) {
             setCurrentPlayerIndex(prev => prev + 1);
           } else {
-            // All cards have been shown, start the game
+            // All cards have been shown, start the game and timer
             setIsRevealPhase(false);
             setCurrentPlayerIndex(-1);
+            setGameState(prev => ({
+              ...prev,
+              currentTime: prev.settings.timer * 60
+            }));
           }
         } else {
           // Show current card
@@ -231,6 +246,69 @@ const App: React.FC = () => {
     setIsDarkMode(!isDarkMode);
     handleButtonClick();
   };
+
+  const handleRestart = () => {
+    setShowRestartDialog(true);
+  };
+
+  const confirmRestart = () => {
+    setGameState(prev => ({ ...prev, isGameStarted: false }));
+    setIsRevealPhase(false);
+    setCurrentPlayerIndex(-1);
+    setShowRestartDialog(false);
+  };
+
+  const addPlayer = () => {
+    const { category } = gameState.settings;
+    const randomLocation = category.locations[Math.floor(Math.random() * category.locations.length)];
+    const isSpy = Math.random() < 0.25; // 25% chance of being spy
+    
+    const newPlayer: Player = {
+      id: gameState.players.length + 1,
+      role: isSpy ? "Spy" : "Civilian",
+      location: isSpy ? "Unknown" : randomLocation.name,
+      isSpy
+    };
+
+    setNewPlayerCard(newPlayer);
+    setIsNewPlayerCardVisible(false);
+    setShowAddPlayerDialog(true);
+  };
+
+  const confirmAddPlayer = () => {
+    if (newPlayerCard) {
+      setGameState(prev => ({
+        ...prev,
+        players: [...prev.players, newPlayerCard]
+      }));
+      setNewPlayerCard(null);
+      setShowAddPlayerDialog(false);
+      setIsNewPlayerCardVisible(false);
+    }
+  };
+
+  // Add keyboard and touch handlers for new player card reveal
+  useEffect(() => {
+    const handleKeyPress = (event: KeyboardEvent) => {
+      if (event.code === 'Space' && showAddPlayerDialog) {
+        setIsNewPlayerCardVisible(true);
+      }
+    };
+
+    const handleTouch = (event: TouchEvent) => {
+      if (showAddPlayerDialog) {
+        event.preventDefault();
+        setIsNewPlayerCardVisible(true);
+      }
+    };
+
+    window.addEventListener('keydown', handleKeyPress);
+    window.addEventListener('touchstart', handleTouch, { passive: false });
+    return () => {
+      window.removeEventListener('keydown', handleKeyPress);
+      window.removeEventListener('touchstart', handleTouch);
+    };
+  }, [showAddPlayerDialog]);
 
   const renderPlayerCard = (player: Player) => (
     <Card 
@@ -355,10 +433,143 @@ const App: React.FC = () => {
           >
             MSA Spy Game
           </Typography>
-          <IconButton onClick={toggleTheme} color="inherit">
-            {isDarkMode ? <Brightness7Icon /> : <Brightness4Icon />}
-          </IconButton>
+          <Box sx={{ display: 'flex', gap: 1 }}>
+            {isRevealPhase && (
+              <Button
+                variant="outlined"
+                color="error"
+                onClick={handleRestart}
+                startIcon={<ReplayIcon />}
+              >
+                Restart
+              </Button>
+            )}
+            {gameState.isGameStarted && !isRevealPhase && !isGameEnded && (
+              <Button
+                variant="outlined"
+                color="primary"
+                onClick={addPlayer}
+                startIcon={<GroupIcon />}
+              >
+                Add Player
+              </Button>
+            )}
+            <IconButton onClick={toggleTheme} color="inherit">
+              {isDarkMode ? <Brightness7Icon /> : <Brightness4Icon />}
+            </IconButton>
+          </Box>
         </Box>
+
+        {/* Add Player Dialog */}
+        <Dialog
+          open={showAddPlayerDialog}
+          onClose={() => setShowAddPlayerDialog(false)}
+          maxWidth="sm"
+          fullWidth
+        >
+          <DialogTitle>New Player's Card</DialogTitle>
+          <DialogContent>
+            {newPlayerCard && (
+              <Card 
+                sx={{ 
+                  width: '100%',
+                  height: 300,
+                  display: 'flex',
+                  flexDirection: 'column',
+                  position: 'relative',
+                  background: isNewPlayerCardVisible 
+                    ? (newPlayerCard.isSpy 
+                        ? `linear-gradient(135deg, ${alpha(theme.palette.error.main, 0.1)} 0%, ${alpha(theme.palette.error.main, 0.2)} 100%)`
+                        : `linear-gradient(135deg, ${alpha(theme.palette.primary.main, 0.1)} 0%, ${alpha(theme.palette.primary.main, 0.2)} 100%)`)
+                    : 'transparent',
+                  border: `2px solid ${isNewPlayerCardVisible 
+                    ? (newPlayerCard.isSpy ? theme.palette.error.main : theme.palette.primary.main)
+                    : theme.palette.grey[400]}`,
+                  borderRadius: 2,
+                  boxShadow: 3,
+                  mt: 2,
+                  cursor: 'pointer',
+                  '&:hover': {
+                    transform: 'scale(1.02)'
+                  }
+                }}
+                onClick={() => setIsNewPlayerCardVisible(true)}
+              >
+                <CardContent sx={{ 
+                  flexGrow: 1, 
+                  display: 'flex', 
+                  flexDirection: 'column', 
+                  alignItems: 'center', 
+                  justifyContent: 'center',
+                  gap: 2,
+                  textAlign: 'center'
+                }}>
+                  {isNewPlayerCardVisible ? (
+                    <>
+                      <Typography variant="h4">
+                        Player {newPlayerCard.id}
+                      </Typography>
+                      <Typography variant="h5" color="text.secondary">
+                        {newPlayerCard.isSpy ? "SPY" : "CIVILIAN"}
+                      </Typography>
+                      {!newPlayerCard.isSpy && (
+                        <Typography variant="h6" color="primary">
+                          {newPlayerCard.location}
+                        </Typography>
+                      )}
+                      {newPlayerCard.isSpy && (
+                        <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
+                          <SecurityIcon color="error" sx={{ fontSize: 30 }} />
+                          <Typography color="error">
+                            You are the Spy!
+                          </Typography>
+                        </Box>
+                      )}
+                    </>
+                  ) : (
+                    <Typography variant="h6" color="text.secondary">
+                      Press SPACE or tap to reveal your role
+                    </Typography>
+                  )}
+                </CardContent>
+              </Card>
+            )}
+          </DialogContent>
+          <DialogActions>
+            <Button onClick={() => setShowAddPlayerDialog(false)} color="primary">
+              Cancel
+            </Button>
+            <Button 
+              onClick={confirmAddPlayer} 
+              color="primary" 
+              variant="contained"
+              disabled={!isNewPlayerCardVisible}
+            >
+              Add Player
+            </Button>
+          </DialogActions>
+        </Dialog>
+
+        {/* Restart Confirmation Dialog */}
+        <Dialog
+          open={showRestartDialog}
+          onClose={() => setShowRestartDialog(false)}
+        >
+          <DialogTitle>Confirm Restart</DialogTitle>
+          <DialogContent>
+            <Typography>
+              Are you sure you want to restart? This will take you back to the home page and all progress will be lost.
+            </Typography>
+          </DialogContent>
+          <DialogActions>
+            <Button onClick={() => setShowRestartDialog(false)} color="primary">
+              Cancel
+            </Button>
+            <Button onClick={confirmRestart} color="error" variant="contained">
+              Restart
+            </Button>
+          </DialogActions>
+        </Dialog>
 
         {!gameState.isGameStarted ? (
           <Box sx={{ mt: 4 }}>
@@ -488,7 +699,83 @@ const App: React.FC = () => {
                 <Typography variant="body1" gutterBottom align="center" color="text.secondary">
                   Press SPACE or tap to {isCardVisible ? 'hide' : 'show'} card
                 </Typography>
-                {isCardVisible && renderPlayerCard(gameState.players[currentPlayerIndex])}
+                <Card 
+                  sx={{ 
+                    width: isMobile ? '100%' : 300,
+                    height: isMobile ? 300 : 400,
+                    display: 'flex',
+                    flexDirection: 'column',
+                    position: 'relative',
+                    background: isCardVisible 
+                      ? (gameState.players[currentPlayerIndex].isSpy 
+                          ? `linear-gradient(135deg, ${alpha(theme.palette.error.main, 0.1)} 0%, ${alpha(theme.palette.error.main, 0.2)} 100%)`
+                          : `linear-gradient(135deg, ${alpha(theme.palette.primary.main, 0.1)} 0%, ${alpha(theme.palette.primary.main, 0.2)} 100%)`)
+                      : 'transparent',
+                    border: `2px solid ${isCardVisible 
+                      ? (gameState.players[currentPlayerIndex].isSpy ? theme.palette.error.main : theme.palette.primary.main)
+                      : theme.palette.grey[400]}`,
+                    borderRadius: 2,
+                    boxShadow: 3,
+                    transition: 'all 0.3s ease',
+                    animation: `${fadeIn} 0.5s ease-out`,
+                    cursor: 'pointer',
+                    '&:hover': {
+                      transform: 'scale(1.02)'
+                    }
+                  }}
+                  onClick={() => {
+                    if (isCardVisible) {
+                      setIsCardVisible(false);
+                      if (currentPlayerIndex < gameState.players.length - 1) {
+                        setCurrentPlayerIndex(prev => prev + 1);
+                      } else {
+                        setIsRevealPhase(false);
+                        setCurrentPlayerIndex(-1);
+                      }
+                    } else {
+                      setIsCardVisible(true);
+                    }
+                  }}
+                >
+                  <CardContent sx={{ 
+                    flexGrow: 1, 
+                    display: 'flex', 
+                    flexDirection: 'column', 
+                    alignItems: 'center', 
+                    justifyContent: 'center',
+                    gap: 2,
+                    textAlign: 'center',
+                    width: '100%'
+                  }}>
+                    {isCardVisible ? (
+                      <>
+                        <Typography variant={isMobile ? "h5" : "h4"} sx={{ textAlign: 'center' }}>
+                          Player {gameState.players[currentPlayerIndex].id}
+                        </Typography>
+                        <Typography variant={isMobile ? "h6" : "h5"} color="text.secondary" sx={{ textAlign: 'center' }}>
+                          {gameState.players[currentPlayerIndex].isSpy ? "SPY" : "CIVILIAN"}
+                        </Typography>
+                        {!gameState.players[currentPlayerIndex].isSpy && (
+                          <Typography variant={isMobile ? "body1" : "h6"} color="primary" sx={{ textAlign: 'center' }}>
+                            {gameState.players[currentPlayerIndex].location}
+                          </Typography>
+                        )}
+                        {gameState.players[currentPlayerIndex].isSpy && (
+                          <Box sx={{ display: 'flex', alignItems: 'center', gap: 1, justifyContent: 'center', width: '100%' }}>
+                            <SecurityIcon color="error" sx={{ fontSize: isMobile ? 24 : 30 }} />
+                            <Typography color="error" sx={{ textAlign: 'center' }}>
+                              You are the Spy!
+                            </Typography>
+                          </Box>
+                        )}
+                      </>
+                    ) : (
+                      <Typography variant="h6" color="text.secondary" sx={{ textAlign: 'center' }}>
+                        Tap or press SPACE to reveal
+                      </Typography>
+                    )}
+                  </CardContent>
+                </Card>
               </Box>
             ) : (
               <>
