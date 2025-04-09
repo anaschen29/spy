@@ -502,6 +502,7 @@ export const categories: Category[] = [
       { name: "Philippines" },
       { name: "Indonesia" },
       { name: "Pakistan" },
+      { name: "Afghanistan" },
       { name: "Bangladesh" },
       { name: "Sri Lanka" },
       { name: "Nepal" },
@@ -562,6 +563,29 @@ export const categories: Category[] = [
       { name: "MSA Lounge" },
       { name: "Z Center" },
       { name: "Alumni Wang Gym" },
+    ]
+  },
+  {
+    name: "Boston",
+    locations: [
+      { name: "Kendall Square" },
+      { name: "Fenway Park" },
+      { name: "Boston Common" },
+      { name: "Freedom Trail" },
+      { name: "Quincy Market" },
+      { name: "New England Aquarium" },
+      { name: "Museum of Fine Arts" },
+      { name: "Boston Public Garden" },
+      { name: "Harvard Square" },
+      { name: "Beacon Hill" },
+      { name: "North End" },
+      { name: "TD Garden" },
+      { name: "Boston Harbor" },
+      { name: "Newbury Street" },
+      { name: "Boston Public Library" },
+      { name: "Bunker Hill Monument" },
+      { name: "Prudential Center" },
+      { name: "Copley Square" }
     ]
   }
 ]; 
