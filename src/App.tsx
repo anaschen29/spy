@@ -260,13 +260,14 @@ const App: React.FC = () => {
 
   const addPlayer = () => {
     const { category } = gameState.settings;
-    const randomLocation = category.locations[Math.floor(Math.random() * category.locations.length)];
+    // Find the location used by civilians in the current game
+    const civilianLocation = gameState.players.find(p => !p.isSpy)?.location || "Unknown";
     const isSpy = Math.random() < 0.25; // 25% chance of being spy
     
     const newPlayer: Player = {
       id: gameState.players.length + 1,
       role: isSpy ? "Spy" : "Civilian",
-      location: isSpy ? "Unknown" : randomLocation.name,
+      location: isSpy ? "Unknown" : civilianLocation,
       isSpy
     };
 
