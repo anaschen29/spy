@@ -291,13 +291,13 @@ const App: React.FC = () => {
   // Add keyboard and touch handlers for new player card reveal
   useEffect(() => {
     const handleKeyPress = (event: KeyboardEvent) => {
-      if (event.code === 'Space' && showAddPlayerDialog) {
+      if (event.code === 'Space' && showAddPlayerDialog && !isNewPlayerCardVisible) {
         setIsNewPlayerCardVisible(true);
       }
     };
 
     const handleTouch = (event: TouchEvent) => {
-      if (showAddPlayerDialog) {
+      if (showAddPlayerDialog && !isNewPlayerCardVisible) {
         event.preventDefault();
         setIsNewPlayerCardVisible(true);
       }
@@ -309,7 +309,25 @@ const App: React.FC = () => {
       window.removeEventListener('keydown', handleKeyPress);
       window.removeEventListener('touchstart', handleTouch);
     };
-  }, [showAddPlayerDialog]);
+  }, [showAddPlayerDialog, isNewPlayerCardVisible]);
+
+  const handleAddPlayerClick = () => {
+    if (!showAddPlayerDialog) {
+      addPlayer();
+    }
+  };
+
+  const handleDialogClose = () => {
+    setShowAddPlayerDialog(false);
+    setIsNewPlayerCardVisible(false);
+    setNewPlayerCard(null);
+  };
+
+  const handleCardClick = () => {
+    if (!isNewPlayerCardVisible) {
+      setIsNewPlayerCardVisible(true);
+    }
+  };
 
   const renderPlayerCard = (player: Player) => (
     <Card 
@@ -449,7 +467,7 @@ const App: React.FC = () => {
               <Button
                 variant="outlined"
                 color="primary"
-                onClick={addPlayer}
+                onClick={handleAddPlayerClick}
                 startIcon={<GroupIcon />}
               >
                 Add Player
@@ -464,9 +482,10 @@ const App: React.FC = () => {
         {/* Add Player Dialog */}
         <Dialog
           open={showAddPlayerDialog}
-          onClose={() => setShowAddPlayerDialog(false)}
+          onClose={handleDialogClose}
           maxWidth="sm"
           fullWidth
+          fullScreen={isMobile}
         >
           <DialogTitle>New Player's Card</DialogTitle>
           <DialogContent>
@@ -474,7 +493,7 @@ const App: React.FC = () => {
               <Card 
                 sx={{ 
                   width: '100%',
-                  height: 300,
+                  height: isMobile ? '70vh' : 300,
                   display: 'flex',
                   flexDirection: 'column',
                   position: 'relative',
@@ -494,7 +513,7 @@ const App: React.FC = () => {
                     transform: 'scale(1.02)'
                   }
                 }}
-                onClick={() => setIsNewPlayerCardVisible(true)}
+                onClick={handleCardClick}
               >
                 <CardContent sx={{ 
                   flexGrow: 1, 
