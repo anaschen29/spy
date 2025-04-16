@@ -510,7 +510,7 @@ const App: React.FC = () => {
                       <Typography variant="h4">
                         Player {newPlayerCard.id}
                       </Typography>
-                      <Typography variant="body1" color="text.secondary">
+                      <Typography variant="caption" color="text.secondary" sx={{ fontSize: '0.8rem', opacity: 0.7 }}>
                         {newPlayerCard.isSpy ? "SPY" : "CIVILIAN"}
                       </Typography>
                       {!newPlayerCard.isSpy && (
