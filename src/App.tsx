@@ -435,6 +435,8 @@ const App: React.FC = () => {
               textFillColor: 'transparent',
               textShadow: '2px 2px 4px rgba(0,0,0,0.1)',
               position: 'relative',
+              width: '100%',
+              textAlign: 'center',
               '&::before': {
                 content: '""',
                 position: 'absolute',
@@ -452,7 +454,7 @@ const App: React.FC = () => {
           >
             MSA Spy Game
           </Typography>
-          <Box sx={{ display: 'flex', gap: 1 }}>
+          <Box sx={{ display: 'flex', gap: 1, position: 'absolute', right: '24px' }}>
             {isRevealPhase && (
               <Button
                 variant="outlined"
@@ -529,11 +531,11 @@ const App: React.FC = () => {
                       <Typography variant="h4">
                         Player {newPlayerCard.id}
                       </Typography>
-                      <Typography variant="caption" color="text.secondary" sx={{ fontSize: '0.7rem', opacity: 0.6, mb: 1 }}>
+                      <Typography variant="caption" color="text.secondary" sx={{ fontSize: '0.6rem', opacity: 0.5, mb: 1.5, letterSpacing: '-0.01em' }}>
                         {newPlayerCard.isSpy ? "SPY" : "CIVILIAN"}
                       </Typography>
                       {!newPlayerCard.isSpy && (
-                        <Typography variant="h4" color="primary" sx={{ fontWeight: 'bold', mt: 2 }}>
+                        <Typography variant="h4" color="primary" sx={{ fontWeight: 'bold', mt: 2, textAlign: 'center', fontSize: { xs: '1.5rem', sm: '2rem' } }}>
                           {newPlayerCard.location}
                         </Typography>
                       )}
@@ -776,7 +778,7 @@ const App: React.FC = () => {
                           {gameState.players[currentPlayerIndex].isSpy ? "SPY" : "CIVILIAN"}
                         </Typography>
                         {!gameState.players[currentPlayerIndex].isSpy && (
-                          <Typography variant={isMobile ? "body1" : "h6"} color="primary" sx={{ textAlign: 'center' }}>
+                          <Typography variant={isMobile ? "h5" : "h4"} color="primary" sx={{ fontWeight: 'bold', mt: 2, textAlign: 'center', fontSize: { xs: '1.3rem', sm: '1.8rem' } }}>
                             {gameState.players[currentPlayerIndex].location}
                           </Typography>
                         )}
@@ -892,6 +894,42 @@ const App: React.FC = () => {
             )}
           </Box>
         )}
+        
+        {/* CPW Banner - Diagonal */}
+        <Box
+          sx={{
+            position: 'relative',
+            width: '100%',
+            height: '120px',
+            mt: 5,
+            mb: 3,
+            overflow: 'hidden'
+          }}
+        >
+          <Box
+            sx={{
+              position: 'absolute',
+              width: '150%',
+              backgroundColor: 'error.main',
+              color: 'white',
+              padding: '15px 0',
+              top: '50%',
+              left: '50%',
+              transform: 'translate(-50%, -50%) rotate(-10deg)',
+              boxShadow: '0 4px 10px rgba(0,0,0,0.3)',
+              textAlign: 'center',
+              animation: `${keyframes`
+                0% { transform: translate(-50%, -50%) rotate(-10deg) scale(1); }
+                50% { transform: translate(-50%, -50%) rotate(-10deg) scale(1.02); }
+                100% { transform: translate(-50%, -50%) rotate(-10deg) scale(1); }
+              `} 2s infinite ease-in-out`
+            }}
+          >
+            <Typography variant="h5" sx={{ fontWeight: 'bold', letterSpacing: '0.05em' }}>
+              CPW - Limited Edition
+            </Typography>
+          </Box>
+        </Box>
       </Container>
     </Box>
   );
