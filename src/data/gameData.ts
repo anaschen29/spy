@@ -183,7 +183,19 @@ export const categories: Category[] = [
           { name: "Banana Lounge" },
           { name: "MSA Lounge" },
           { name: "Z Center" },
-          { name: "Alumni Wang Gym" }
+          { name: "Alumni Wang Gym" },
+          { name: "Building 26" },
+          { name: "Building 32" },
+          { name: "Building 36" },
+          { name: "Building 66" },
+          { name: "Dorm Row" },
+          { name: "Simmons Hall" },
+          { name: "New Vassar" },
+          { name: "Baker House" },
+          { name: "Student Center" },
+          { name: "Infinite Corridor" },
+          { name: "Green Building" },
+          { name: "East Campus" }
         ]
       }
     ])
@@ -543,29 +555,6 @@ export const categories: Category[] = [
     ]
   },
   {
-    name: "MIT",
-    locations: [
-      { name: "Hayden Library" },
-      { name: "Barker Library" },
-      { name: "McCormick Hall" },
-      { name: "Maseeh Hall" },
-      { name: "W11" },
-      { name: "Lobdell" },
-      { name: "Walker Memorial" },
-      { name: "Stata" },
-      { name: "Killian Court" },
-      { name: "Great Dome" },
-      { name: "Sloan" },
-      { name: "Kresge Auditorium" },
-      { name: "Lobby 7" },
-      { name: "Lobby 10" },
-      { name: "Banana Lounge" },
-      { name: "MSA Lounge" },
-      { name: "Z Center" },
-      { name: "Alumni Wang Gym" },
-    ]
-  },
-  {
     name: "Boston",
     locations: [
       { name: "Kendall Square" },
@@ -586,6 +575,89 @@ export const categories: Category[] = [
       { name: "Bunker Hill Monument" },
       { name: "Prudential Center" },
       { name: "Copley Square" }
+    ]
+  },
+  {
+    name: "MIT Locations",
+    locations: [
+      { name: "Kresge Auditorium" },
+      { name: "Killian Court" },
+      { name: "Z Center" },
+      { name: "Stud (Student Center)" },
+      { name: "W31 (MSA Lounge)" },
+      { name: "W11 (Musalla)" },
+      { name: "Maseeh Hall" },
+      { name: "McCormick Hall" },
+      { name: "Baker House" },
+      { name: "10-250" },
+      { name: "Lobby 7" },
+      { name: "Lobby 10" },
+      { name: "26-100" },
+      { name: "Banana Lounge" },
+      { name: "Sloan Building" },
+      { name: "Media Lab" },
+      { name: "Stata Center" },
+      { name: "Random Hall" },
+      { name: "East Campus" },
+      { name: "MIT Medical" },
+      { name: "Hayden Library" },
+      { name: "Barker Library" },
+      { name: "Infinite Corridor" },
+      { name: "Outfinite Corridor" },
+      { name: "Great Dome" },
+      { name: "Simmons Hall" },
+      { name: "New Vassar" },
+      { name: "Green Building" }
+    ]
+  },
+  {
+    name: "MIT Courses",
+    locations: [
+      { name: "Course 1 (Civil & Environmental Engineering)" },
+      { name: "Course 2 (Mechanical Engineering)" },
+      { name: "Course 3 (Materials Science & Engineering)" },
+      { name: "Course 4 (Architecture)" },
+      { name: "Course 5 (Chemistry)" },
+      { name: "Course 6 (EECS)" },
+      { name: "Course 7 (Biology)" },
+      { name: "Course 8 (Physics)" },
+      { name: "Course 9 (Brain & Cognitive Sciences)" },
+      { name: "Course 10 (Chemical Engineering)" },
+      { name: "Course 11 (Urban Studies & Planning)" },
+      { name: "Course 12 (Earth, Atmospheric & Planetary Sciences)" },
+      { name: "Course 14 (Economics)" },
+      { name: "Course 15 (Management)" },
+      { name: "Course 16 (Aeronautics & Astronautics)" },
+      { name: "Course 17 (Political Science)" },
+      { name: "Course 18 (Mathematics)" },
+      { name: "Course 20 (Biological Engineering)" },
+      { name: "Course 21 (Humanities)" },
+      { name: "Course 22 (Nuclear Science & Engineering)" }
+    ]
+  },
+  {
+    name: "Animals",
+    locations: [
+      { name: "Lion" },
+      { name: "Elephant" },
+      { name: "Giraffe" },
+      { name: "Tiger" },
+      { name: "Dolphin" },
+      { name: "Penguin" },
+      { name: "Bear" },
+      { name: "Kangaroo" },
+      { name: "Monkey" },
+      { name: "Octopus" },
+      { name: "Eagle" },
+      { name: "Wolf" },
+      { name: "Zebra" },
+      { name: "Shark" },
+      { name: "Koala" },
+      { name: "Panda" },
+      { name: "Crocodile" },
+      { name: "Owl" },
+      { name: "Gorilla" },
+      { name: "Rhino" }
     ]
   }
 ]; 
