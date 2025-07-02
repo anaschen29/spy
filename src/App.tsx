@@ -312,9 +312,7 @@ const App: React.FC = () => {
   }, [showAddPlayerDialog, isNewPlayerCardVisible]);
 
   const handleAddPlayerClick = () => {
-    if (!showAddPlayerDialog) {
-      addPlayer();
-    }
+    addPlayer();
   };
 
   const handleDialogClose = () => {
@@ -326,6 +324,19 @@ const App: React.FC = () => {
   const handleCardClick = () => {
     if (!isNewPlayerCardVisible) {
       setIsNewPlayerCardVisible(true);
+    }
+  };
+
+  const handleAddAnotherPlayer = () => {
+    if (newPlayerCard) {
+      // Add the current player to the game
+      setGameState(prev => ({
+        ...prev,
+        players: [...prev.players, newPlayerCard]
+      }));
+      
+      // Generate a new player card
+      addPlayer();
     }
   };
 
@@ -562,12 +573,20 @@ const App: React.FC = () => {
               Cancel
             </Button>
             <Button 
-              onClick={confirmAddPlayer} 
+              onClick={handleAddAnotherPlayer} 
               color="primary" 
               variant="contained"
               disabled={!isNewPlayerCardVisible}
             >
-              Add Player
+              Add Player & Continue
+            </Button>
+            <Button 
+              onClick={confirmAddPlayer} 
+              color="secondary" 
+              variant="contained"
+              disabled={!isNewPlayerCardVisible}
+            >
+              Add Player & Close
             </Button>
           </DialogActions>
         </Dialog>
