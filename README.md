@@ -1,3 +1,4 @@
-Spy Game created for Tuesday Tea. 
+Single-device webapp for Spy using Node.js, created for Tuesday Tea and beyond. 
 
-npm start
+Can be locally started via npm start, and it is also deployed on https://spy-2.vercel.app/. 
+
