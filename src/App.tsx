@@ -12,8 +12,6 @@ import {
   Grid,
   Paper,
   Card,
-  CardContent,
-  CardActions,
   useTheme,
   alpha,
   IconButton,
@@ -21,11 +19,15 @@ import {
   Dialog,
   DialogTitle,
   DialogContent,
-  DialogActions
+  DialogActions,
+  Chip,
+  LinearProgress
 } from '@mui/material';
 import { categories } from './data/gameData';
 import CategoryOptionsDialog from './components/CategoryOptionsDialog';
-import { GameState, GameSettings, Player } from './types/game';
+import RoleCard from './components/RoleCard';
+import { useGameTheme } from './GameTheme';
+import { GameState, Player } from './types/game';
 import SecurityIcon from '@mui/icons-material/Security';
 import TimerIcon from '@mui/icons-material/Timer';
 import GroupIcon from '@mui/icons-material/Group';
@@ -35,23 +37,10 @@ import StopIcon from '@mui/icons-material/Stop';
 import ReplayIcon from '@mui/icons-material/Replay';
 import Brightness4Icon from '@mui/icons-material/Brightness4';
 import Brightness7Icon from '@mui/icons-material/Brightness7';
-import { keyframes } from '@mui/system';
-
-// Define animations
-const flipAnimation = keyframes`
-  0% { transform: rotateY(0deg); }
-  100% { transform: rotateY(180deg); }
-`;
-
-const fadeIn = keyframes`
-  from { opacity: 0; transform: translateY(20px); }
-  to { opacity: 1; transform: translateY(0); }
-`;
-
 const App: React.FC = () => {
   const theme = useTheme();
   const isMobile = useMediaQuery(theme.breakpoints.down('sm'));
-  const [isDarkMode, setIsDarkMode] = useState(true);
+  const { isDarkMode, toggleMode } = useGameTheme();
   
   // Sound effects
   const cardFlipSound = useRef<HTMLAudioElement>(null);
@@ -201,21 +190,15 @@ const App: React.FC = () => {
     if (!isRevealPhase || showAddPlayerDialog) return;
 
     const handleKeyPress = (event: KeyboardEvent) => {
+      if (event.target instanceof Element && event.target.closest('button, input, select, textarea, [role="dialog"]')) return;
       if (event.code === 'Space') {
         event.preventDefault();
         if (!event.repeat) handleRevealInteraction();
       }
     };
-    const handleTouch = (event: TouchEvent) => {
-      event.preventDefault(); // Suppress the synthetic click so a tap advances once.
-      handleRevealInteraction();
-    };
-
     window.addEventListener('keydown', handleKeyPress);
-    window.addEventListener('touchstart', handleTouch, { passive: false });
     return () => {
       window.removeEventListener('keydown', handleKeyPress);
-      window.removeEventListener('touchstart', handleTouch);
     };
   }, [isRevealPhase, showAddPlayerDialog, handleRevealInteraction]);
 
@@ -235,7 +218,7 @@ const App: React.FC = () => {
   };
 
   const toggleTheme = () => {
-    setIsDarkMode(!isDarkMode);
+    toggleMode();
     handleButtonClick();
   };
 
@@ -325,595 +308,160 @@ const App: React.FC = () => {
     }
   };
 
-  const renderPlayerCard = (player: Player) => (
-    <Card 
-      sx={{ 
-        width: isMobile ? '100%' : 300,
-        height: isMobile ? 300 : 400,
-        display: 'flex',
-        flexDirection: 'column',
-        position: 'relative',
-        background: player.isSpy 
-          ? `linear-gradient(135deg, ${alpha(theme.palette.error.main, 0.1)} 0%, ${alpha(theme.palette.error.main, 0.2)} 100%)`
-          : `linear-gradient(135deg, ${alpha(theme.palette.primary.main, 0.1)} 0%, ${alpha(theme.palette.primary.main, 0.2)} 100%)`,
-        border: `2px solid ${player.isSpy ? theme.palette.error.main : theme.palette.primary.main}`,
-        borderRadius: 2,
-        boxShadow: 3,
-        transition: 'transform 0.2s',
-        animation: `${fadeIn} 0.5s ease-out`,
-        '&:hover': {
-          transform: 'scale(1.02)'
-        }
-      }}
-    >
-      <CardContent sx={{ 
-        flexGrow: 1, 
-        display: 'flex', 
-        flexDirection: 'column', 
-        alignItems: 'center', 
-        justifyContent: 'flex-start',
-        pt: 4,
-        gap: 2 
-      }}>
-        <Typography variant={isMobile ? "h5" : "h4"}>
-          Player {player.id}
-        </Typography>
-        <Typography variant={isMobile ? "h6" : "h5"} color="text.secondary">
-          {player.isSpy ? "SPY" : "CIVILIAN"}
-        </Typography>
-        {!player.isSpy && (
-          <Typography variant={isMobile ? "body1" : "h6"} color="primary">
-            {player.location}
-          </Typography>
-        )}
-        {player.isSpy && (
-          <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
-            <SecurityIcon color="error" sx={{ fontSize: isMobile ? 24 : 30 }} />
-            <Typography color="error">
-              You are the Spy!
+  return (
+    <Box sx={{ minHeight: '100dvh', bgcolor: 'background.default', backgroundImage: `radial-gradient(ellipse at 10% 0%, ${alpha(theme.palette.primary.main, 0.07)}, transparent 50%)` }}>
+      <Container maxWidth="md" sx={{ py: { xs: 2, sm: 4 }, px: { xs: 2.5, sm: 3 } }}>
+        <Box component="header" sx={{ display: 'flex', flexWrap: 'wrap', justifyContent: 'space-between', alignItems: 'center', gap: { xs: 1, sm: 2 }, pb: 3, mb: { xs: 2, sm: 5 }, borderBottom: '1px solid', borderColor: 'divider' }}>
+          <Box sx={{ display: 'flex', alignItems: 'center', gap: 1.5 }}>
+            <Box sx={{ display: 'flex', p: 1.2, borderRadius: 3, color: 'primary.main', bgcolor: alpha(theme.palette.primary.main, 0.1) }}><SecurityIcon /></Box>
+            <Typography component="h1" sx={{ lineHeight: 1.2 }}>
+              <Box component="span" sx={{ display: 'block', fontSize: 11, letterSpacing: '0.16em', fontWeight: 700, color: 'text.secondary' }}>MIT MSA</Box>
+              <Box component="span" sx={{ fontSize: { xs: 22, sm: 24 }, fontWeight: 750, letterSpacing: '-0.04em' }}>Spy Game</Box>
             </Typography>
           </Box>
-        )}
-      </CardContent>
-    </Card>
-  );
-
-  return (
-    <Box
-      sx={{
-        minHeight: '100vh',
-        width: '100%',
-        bgcolor: 'background.default',
-        position: 'relative',
-        overflow: 'hidden',
-        backgroundImage: `url("/spy-game-og.png")`,
-        backgroundSize: 'contain',
-        backgroundPosition: 'center',
-        backgroundRepeat: 'no-repeat',
-        '&::before': {
-          content: '""',
-          position: 'absolute',
-          top: 0,
-          left: 0,
-          right: 0,
-          bottom: 0,
-          background: `url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='100' height='100' viewBox='0 0 100 100'%3E%3Cg fill='%239C92AC' fill-opacity='0.1'%3E%3Cpath d='M0 0h100v100H0z'/%3E%3Cpath d='M0 0h50v50H0z'/%3E%3Cpath d='M50 50h50v50H50z'/%3E%3Cpath d='M25 25h50v50H25z'/%3E%3C/g%3E%3C/svg%3E")`,
-          opacity: 0.1,
-          zIndex: 0
-        },
-        '&::after': {
-          content: '""',
-          position: 'absolute',
-          top: 0,
-          left: 0,
-          right: 0,
-          bottom: 0,
-          background: isDarkMode ? 'rgba(18, 18, 18, 0.85)' : 'rgba(255, 255, 255, 0.85)',
-          zIndex: 0
-        }
-      }}
-    >
-      <Container maxWidth="md" sx={{ position: 'relative', zIndex: 1 }}>
-        <Box sx={{ 
-          my: 4,
-          display: 'flex',
-          justifyContent: 'space-between',
-          alignItems: 'center',
-          mb: 4
-        }}>
-          <Typography 
-            variant="h2" 
-            component="h1" 
-            sx={{ 
-              fontWeight: 'bold',
-              background: `linear-gradient(45deg, ${theme.palette.primary.main} 30%, ${theme.palette.secondary.main} 90%)`,
-              backgroundClip: 'text',
-              textFillColor: 'transparent',
-              textShadow: '2px 2px 4px rgba(0,0,0,0.1)',
-              position: 'relative',
-              width: '100%',
-              textAlign: 'center',
-              '&::before': {
-                content: '""',
-                position: 'absolute',
-                top: '-20px',
-                left: '50%',
-                transform: 'translateX(-50%)',
-                width: '60px',
-                height: '60px',
-                backgroundImage: `url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='%239C92AC' fill-opacity='0.3'%3E%3Cpath d='M12 1L3 5v6c0 5.55 3.84 10.74 9 12 5.16-1.26 9-6.45 9-12V5l-9-4zm0 2.18l7 3.12v4.7c0 4.83-2.79 9.36-7 11.13-4.21-1.77-7-6.3-7-11.13v-4.7l7-3.12z'/%3E%3C/svg%3E")`,
-                backgroundSize: 'contain',
-                backgroundRepeat: 'no-repeat',
-                animation: 'float 3s ease-in-out infinite'
-              }
-            }}
-          >
-            MIT MSA Spy Game
-          </Typography>
-          <Box sx={{ display: 'flex', gap: 1, position: 'absolute', right: '24px' }}>
-            {isRevealPhase && (
-              <Button
-                variant="outlined"
-                color="error"
-                onClick={handleRestart}
-                startIcon={<ReplayIcon />}
-              >
-                Restart
-              </Button>
-            )}
+          <Box sx={{ display: 'flex', alignItems: 'center', gap: 0.5 }}>
+            {isRevealPhase && <Button variant="text" color="secondary" onClick={handleRestart} startIcon={<ReplayIcon />}>Restart</Button>}
             {gameState.isGameStarted && !isRevealPhase && !isGameEnded && (
-              <Button
-                variant="outlined"
-                color="primary"
-                onClick={handleAddPlayerClick}
-                startIcon={<GroupIcon />}
-              >
-                Add Player
-              </Button>
+              <Button variant="outlined" sx={{ px: 1.5 }} onClick={handleAddPlayerClick} startIcon={<GroupIcon />}>Add Player</Button>
             )}
-            <IconButton onClick={toggleTheme} color="inherit">
+            <IconButton onClick={toggleTheme} aria-label={`Switch to ${isDarkMode ? 'light' : 'dark'} mode`} title={`Switch to ${isDarkMode ? 'light' : 'dark'} mode`}>
               {isDarkMode ? <Brightness7Icon /> : <Brightness4Icon />}
             </IconButton>
           </Box>
         </Box>
 
         {!gameState.isGameStarted && showCategoryOptions && (
-          <CategoryOptionsDialog
-            category={gameState.settings.category}
-            onClose={() => setShowCategoryOptions(false)}
-          />
+          <CategoryOptionsDialog category={gameState.settings.category} onClose={() => setShowCategoryOptions(false)} />
         )}
 
-        {/* Add Player Dialog */}
-        <Dialog
-          open={showAddPlayerDialog}
-          onClose={handleDialogClose}
-          maxWidth="sm"
-          fullWidth
-          fullScreen={isMobile}
-        >
-          <DialogTitle>New Player's Card</DialogTitle>
-          <DialogContent>
-            {newPlayerCard && (
-              <Card 
-                sx={{ 
-                  width: '100%',
-                  height: isMobile ? '70vh' : 300,
-                  display: 'flex',
-                  flexDirection: 'column',
-                  position: 'relative',
-                  background: isNewPlayerCardVisible 
-                    ? (newPlayerCard.isSpy 
-                        ? `linear-gradient(135deg, ${alpha(theme.palette.error.main, 0.1)} 0%, ${alpha(theme.palette.error.main, 0.2)} 100%)`
-                        : `linear-gradient(135deg, ${alpha(theme.palette.primary.main, 0.1)} 0%, ${alpha(theme.palette.primary.main, 0.2)} 100%)`)
-                    : 'transparent',
-                  border: `2px solid ${isNewPlayerCardVisible 
-                    ? (newPlayerCard.isSpy ? theme.palette.error.main : theme.palette.primary.main)
-                    : theme.palette.grey[400]}`,
-                  borderRadius: 2,
-                  boxShadow: 3,
-                  mt: 2,
-                  cursor: 'pointer',
-                  '&:hover': {
-                    transform: 'scale(1.02)'
-                  }
-                }}
-                onClick={toggleNewPlayerCard}
-                role="button"
-                tabIndex={0}
-                aria-label={isNewPlayerCardVisible ? 'Hide new player role' : 'Reveal new player role'}
-                aria-pressed={isNewPlayerCardVisible}
-                onKeyDown={event => {
-                  if (event.code === 'Space' || event.key === 'Enter') {
-                    event.preventDefault();
-                    event.stopPropagation();
-                    if (!event.repeat) toggleNewPlayerCard();
-                  }
-                }}
-              >
-                <CardContent sx={{ 
-                  flexGrow: 1, 
-                  display: 'flex', 
-                  flexDirection: 'column', 
-                  alignItems: 'center', 
-                  justifyContent: 'center',
-                  gap: 2,
-                  textAlign: 'center'
-                }}>
-                  {isNewPlayerCardVisible ? (
-                    <>
-                      <Typography variant="h4">
-                        Player {newPlayerCard.id}
-                      </Typography>
-                      <Typography variant="caption" color="text.secondary" sx={{ fontSize: '0.6rem', opacity: 0.5, mb: 1.5, letterSpacing: '-0.01em' }}>
-                        {newPlayerCard.isSpy ? "SPY" : "CIVILIAN"}
-                      </Typography>
-                      {!newPlayerCard.isSpy && (
-                        <Typography variant="h4" color="primary" sx={{ fontWeight: 'bold', mt: 2, textAlign: 'center', fontSize: { xs: '1.5rem', sm: '2rem' } }}>
-                          {newPlayerCard.location}
-                        </Typography>
-                      )}
-                      {newPlayerCard.isSpy && (
-                        <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
-                          <SecurityIcon color="error" sx={{ fontSize: 30 }} />
-                          <Typography color="error">
-                            You are the Spy!
-                          </Typography>
-                        </Box>
-                      )}
-                    </>
-                  ) : (
-                    <Typography variant="h6" color="text.secondary">
-                      Press SPACE or tap to reveal your role
-                    </Typography>
-                  )}
-                </CardContent>
-              </Card>
-            )}
+        <Dialog open={showAddPlayerDialog} onClose={handleDialogClose} aria-labelledby="add-player-title" maxWidth="sm" fullWidth fullScreen={isMobile}>
+          <DialogTitle id="add-player-title">New Player's Card</DialogTitle>
+          <DialogContent sx={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 2, pt: '12px !important' }}>
+            <Typography color="text.secondary" variant="body2">Pass the phone to the new player before revealing.</Typography>
+            {newPlayerCard && <RoleCard player={newPlayerCard} visible={isNewPlayerCardVisible} onClick={toggleNewPlayerCard} hideHint="Tap to hide your role" />}
           </DialogContent>
-          <DialogActions>
-            <Button onClick={() => setShowAddPlayerDialog(false)} color="primary">
-              Cancel
-            </Button>
-            <Button 
-              onClick={handleAddAnotherPlayer} 
-              color="primary" 
-              variant="contained"
-              disabled={!hasViewedNewPlayerCard}
-            >
-              Add Player & Continue
-            </Button>
-            <Button 
-              onClick={confirmAddPlayer} 
-              color="secondary" 
-              variant="contained"
-              disabled={!hasViewedNewPlayerCard}
-            >
-              Add Player & Close
-            </Button>
+          <DialogActions sx={{ flexWrap: 'wrap', '& > .MuiButton-root': { flexGrow: 1, m: '0 !important' } }}>
+            <Button onClick={handleDialogClose} color="secondary">Cancel</Button>
+            <Button onClick={handleAddAnotherPlayer} variant="outlined" disabled={!hasViewedNewPlayerCard}>Add Player & Continue</Button>
+            <Button onClick={confirmAddPlayer} variant="contained" disabled={!hasViewedNewPlayerCard}>Add Player & Close</Button>
           </DialogActions>
         </Dialog>
 
-        {/* Restart Confirmation Dialog */}
-        <Dialog
-          open={showRestartDialog}
-          onClose={() => setShowRestartDialog(false)}
-        >
-          <DialogTitle>Confirm Restart</DialogTitle>
-          <DialogContent>
-            <Typography>
-              Are you sure you want to restart? This will take you back to the home page and all progress will be lost.
-            </Typography>
-          </DialogContent>
+        <Dialog open={showRestartDialog} onClose={() => setShowRestartDialog(false)} aria-labelledby="restart-title">
+          <DialogTitle id="restart-title">Start fresh?</DialogTitle>
+          <DialogContent><Typography color="text.secondary">Restarting takes you back to setup. The current roles and progress will be lost.</Typography></DialogContent>
           <DialogActions>
-            <Button onClick={() => setShowRestartDialog(false)} color="primary">
-              Cancel
-            </Button>
-            <Button onClick={confirmRestart} color="error" variant="contained">
-              Restart
-            </Button>
+            <Button onClick={() => setShowRestartDialog(false)} color="secondary">Cancel</Button>
+            <Button onClick={confirmRestart} color="error" variant="outlined">Restart</Button>
           </DialogActions>
         </Dialog>
 
-        {!gameState.isGameStarted ? (
-          <Box sx={{ mt: 4 }}>
-            <Paper 
-              elevation={3} 
-              sx={{ 
-                p: 4, 
-                background: `linear-gradient(135deg, ${alpha(theme.palette.background.paper, 0.9)} 0%, ${alpha(theme.palette.background.paper, 0.95)} 100%)`,
-                borderRadius: 2
-              }}
-            >
-              <Typography variant="h5" gutterBottom align="center" sx={{ mb: 4 }}>
-                Set Up Your Game
-              </Typography>
-              <Grid container spacing={3}>
-                <Grid item xs={12} sm={6}>
-                  <TextField
-                    fullWidth
-                    type="number"
-                    label="Number of Players"
-                    value={gameState.settings.numberOfPlayers}
-                    onChange={(e) => setGameState(prev => ({
-                      ...prev,
-                      settings: {
-                        ...prev.settings,
-                        numberOfPlayers: parseInt(e.target.value)
-                      }
-                    }))}
-                    InputProps={{
-                      startAdornment: <GroupIcon sx={{ mr: 1, color: 'primary.main' }} />
-                    }}
-                  />
-                </Grid>
-                <Grid item xs={12} sm={6}>
-                  <TextField
-                    fullWidth
-                    type="number"
-                    label="Number of Spies"
-                    value={gameState.settings.numberOfSpies}
-                    onChange={(e) => setGameState(prev => ({
-                      ...prev,
-                      settings: {
-                        ...prev.settings,
-                        numberOfSpies: parseInt(e.target.value)
-                      }
-                    }))}
-                    InputProps={{
-                      startAdornment: <SecurityIcon sx={{ mr: 1, color: 'error.main' }} />
-                    }}
-                  />
-                </Grid>
-                <Grid item xs={12} sm={6}>
-                  <TextField
-                    fullWidth
-                    type="number"
-                    label="Timer (minutes)"
-                    value={gameState.settings.timer}
-                    onChange={(e) => setGameState(prev => ({
-                      ...prev,
-                      settings: {
-                        ...prev.settings,
-                        timer: parseInt(e.target.value)
-                      }
-                    }))}
-                    InputProps={{
-                      startAdornment: <TimerIcon sx={{ mr: 1, color: 'primary.main' }} />
-                    }}
-                  />
-                </Grid>
-                <Grid item xs={12} sm={6}>
-                  <FormControl fullWidth>
-                    <InputLabel>Category</InputLabel>
-                    <Select
-                      value={gameState.settings.category.name}
-                      label="Category"
-                      onChange={(e) => {
-                        const category = categories.find(c => c.name === e.target.value);
-                        if (category) {
-                          setGameState(prev => ({
-                            ...prev,
-                            settings: {
-                              ...prev.settings,
-                              category
-                            }
-                          }));
-                        }
-                      }}
-                      startAdornment={<CategoryIcon sx={{ mr: 1, color: 'primary.main' }} />}
-                    >
-                      {categories.map(category => (
-                        <MenuItem key={category.name} value={category.name}>
-                          {category.name}
-                        </MenuItem>
-                      ))}
-                    </Select>
-                  </FormControl>
-                  <Button
-                    fullWidth
-                    variant="outlined"
-                    startIcon={<CategoryIcon />}
-                    onClick={() => setShowCategoryOptions(true)}
-                    sx={{ mt: 1 }}
-                  >
-                    View category options
-                  </Button>
-                </Grid>
-                <Grid item xs={12}>
-                  <Button
-                    fullWidth
-                    variant="contained"
-                    color="primary"
-                    onClick={startGame}
-                    startIcon={<PlayArrowIcon />}
-                    sx={{ 
-                      py: 2,
-                      fontSize: '1.1rem',
-                      background: `linear-gradient(45deg, ${theme.palette.primary.main} 30%, ${theme.palette.secondary.main} 90%)`,
-                      '&:hover': {
-                        background: `linear-gradient(45deg, ${theme.palette.primary.dark} 30%, ${theme.palette.secondary.dark} 90%)`,
-                      }
-                    }}
-                  >
-                    Start Game
-                  </Button>
-                </Grid>
-              </Grid>
-            </Paper>
-          </Box>
-        ) : (
-          <Box sx={{ mt: 4 }}>
-            {isRevealPhase ? (
-              <Box sx={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 3 }}>
-                <Typography variant="h4" gutterBottom align="center">
-                  Player {currentPlayerIndex + 1}'s Turn
-                </Typography>
-                <Typography variant="body1" gutterBottom align="center" color="text.secondary">
-                  Press SPACE or tap to {isCardVisible ? 'hide' : 'show'} card
-                </Typography>
-                <Card 
-                  sx={{ 
-                    width: isMobile ? '100%' : 300,
-                    height: isMobile ? 300 : 400,
-                    display: 'flex',
-                    flexDirection: 'column',
-                    position: 'relative',
-                    background: isCardVisible 
-                      ? (gameState.players[currentPlayerIndex].isSpy 
-                          ? `linear-gradient(135deg, ${alpha(theme.palette.error.main, 0.1)} 0%, ${alpha(theme.palette.error.main, 0.2)} 100%)`
-                          : `linear-gradient(135deg, ${alpha(theme.palette.primary.main, 0.1)} 0%, ${alpha(theme.palette.primary.main, 0.2)} 100%)`)
-                      : 'transparent',
-                    border: `2px solid ${isCardVisible 
-                      ? (gameState.players[currentPlayerIndex].isSpy ? theme.palette.error.main : theme.palette.primary.main)
-                      : theme.palette.grey[400]}`,
-                    borderRadius: 2,
-                    boxShadow: 3,
-                    transition: 'all 0.3s ease',
-                    animation: `${fadeIn} 0.5s ease-out`,
-                    cursor: 'pointer',
-                    '&:hover': {
-                      transform: 'scale(1.02)'
-                    }
-                  }}
-                  onClick={handleRevealInteraction}
-                >
-                  <CardContent sx={{ 
-                    flexGrow: 1, 
-                    display: 'flex', 
-                    flexDirection: 'column', 
-                    alignItems: 'center', 
-                    justifyContent: 'center',
-                    gap: 2,
-                    textAlign: 'center',
-                    width: '100%'
-                  }}>
-                    {isCardVisible ? (
-                      <>
-                        <Typography variant={isMobile ? "h5" : "h4"} sx={{ textAlign: 'center' }}>
-                          Player {gameState.players[currentPlayerIndex].id}
-                        </Typography>
-                        <Typography variant={isMobile ? "h6" : "h5"} color="text.secondary" sx={{ textAlign: 'center' }}>
-                          {gameState.players[currentPlayerIndex].isSpy ? "SPY" : "CIVILIAN"}
-                        </Typography>
-                        {!gameState.players[currentPlayerIndex].isSpy && (
-                          <Typography variant={isMobile ? "h5" : "h4"} color="primary" sx={{ fontWeight: 'bold', mt: 2, textAlign: 'center', fontSize: { xs: '1.3rem', sm: '1.8rem' } }}>
-                            {gameState.players[currentPlayerIndex].location}
-                          </Typography>
-                        )}
-                        {gameState.players[currentPlayerIndex].isSpy && (
-                          <Box sx={{ display: 'flex', alignItems: 'center', gap: 1, justifyContent: 'center', width: '100%' }}>
-                            <SecurityIcon color="error" sx={{ fontSize: isMobile ? 24 : 30 }} />
-                            <Typography color="error" sx={{ textAlign: 'center' }}>
-                              You are the Spy!
-                            </Typography>
-                          </Box>
-                        )}
-                      </>
-                    ) : (
-                      <Typography variant="h6" color="text.secondary" sx={{ textAlign: 'center' }}>
-                        Tap or press SPACE to reveal
-                      </Typography>
-                    )}
-                  </CardContent>
-                </Card>
-              </Box>
-            ) : (
-              <>
-                <Paper 
-                  elevation={3} 
-                  sx={{ 
-                    p: 3, 
-                    mb: 3,
-                    background: `linear-gradient(135deg, ${alpha(theme.palette.primary.main, 0.1)} 0%, ${alpha(theme.palette.primary.main, 0.2)} 100%)`,
-                    borderRadius: 2
-                  }}
-                >
-                  <Typography variant="h4" gutterBottom align="center">
-                    Time Remaining: {formatTime(gameState.currentTime)}
-                  </Typography>
-                  <Typography variant="h5" gutterBottom align="center" color="text.secondary">
-                    {isGameEnded ? "Game Over!" : "Game in Progress"}
-                  </Typography>
-                </Paper>
-                <Grid container spacing={2} justifyContent="center">
-                  {gameState.players.map(player => (
-                    <Grid item key={player.id}>
-                      <Card 
-                        sx={{ 
-                          width: 200,
-                          height: 300,
-                          display: 'flex',
-                          flexDirection: 'column',
-                          alignItems: 'center',
-                          justifyContent: 'flex-start',
-                          pt: 4,
-                          background: isGameEnded 
-                            ? (player.isSpy 
-                                ? `linear-gradient(135deg, ${alpha(theme.palette.error.main, 0.1)} 0%, ${alpha(theme.palette.error.main, 0.2)} 100%)`
-                                : `linear-gradient(135deg, ${alpha(theme.palette.primary.main, 0.1)} 0%, ${alpha(theme.palette.primary.main, 0.2)} 100%)`)
-                            : `linear-gradient(135deg, ${alpha(theme.palette.grey[300], 0.5)} 0%, ${alpha(theme.palette.grey[400], 0.5)} 100%)`,
-                          border: isGameEnded
-                            ? `2px solid ${player.isSpy ? theme.palette.error.main : theme.palette.primary.main}`
-                            : `2px dashed ${theme.palette.grey[400]}`,
-                          borderRadius: 2,
-                          boxShadow: isGameEnded ? 3 : 0
-                        }}
-                      >
-                        <Typography variant="h6">Player {player.id}</Typography>
-                        {isGameEnded ? (
-                          <>
-                            <Typography variant="h5" color={player.isSpy ? "error" : "primary"} sx={{ mt: 2 }}>
-                              {player.isSpy ? "SPY" : "CIVILIAN"}
-                            </Typography>
-                            <Typography color="text.secondary" sx={{ mt: 2 }}>
-                              {!player.isSpy && player.location}
-                            </Typography>
-                            {player.isSpy && (
-                              <Box sx={{ mt: 2, display: 'flex', alignItems: 'center', gap: 1 }}>
-                                <SecurityIcon color="error" sx={{ fontSize: 30 }} />
-                                <Typography color="error">
-                                  You are the Spy!
-                                </Typography>
-                              </Box>
-                            )}
-                          </>
-                        ) : (
-                          <Typography color="text.secondary" sx={{ mt: 2 }}>Location: Hidden</Typography>
-                        )}
-                      </Card>
-                    </Grid>
+        <Box component="main">
+          {!gameState.isGameStarted ? (
+            <Grid container spacing={{ xs: 3, sm: 5 }} alignItems="center">
+              <Grid item xs={12} md={5}>
+                <Typography variant="overline" color="primary">A little mystery. Good company.</Typography>
+                <Typography variant="h2" sx={{ fontSize: { xs: '2.2rem', sm: '3.5rem' }, lineHeight: 1.05, mt: 1.5, mb: 2 }}>One phone.<br />Someone’s a spy.</Typography>
+                <Typography color="text.secondary" sx={{ lineHeight: 1.8, maxWidth: 360 }}>Gather your people. Share a secret. Find out who’s bluffing.</Typography>
+                <Box sx={{ display: { xs: 'none', md: 'grid' }, gap: 2.5, mt: 4 }}>
+                  {['Choose a category together', 'Reveal your roles in private', 'Ask questions. Find the spy.'].map((step, index) => (
+                    <Box key={step} sx={{ display: 'flex', alignItems: 'center', gap: 1.5 }}>
+                      <Box sx={{ width: 28, height: 28, display: 'grid', placeItems: 'center', borderRadius: '50%', border: '1px solid', borderColor: 'divider', fontSize: 12, color: 'primary.main' }}>{index + 1}</Box>
+                      <Typography variant="body2" color="text.secondary">{step}</Typography>
+                    </Box>
                   ))}
-                </Grid>
-                {!isGameEnded && (
-                  <Button
-                    fullWidth
-                    variant="contained"
-                    color="secondary"
-                    onClick={handleEndGame}
-                    startIcon={<StopIcon />}
-                    sx={{ mt: 3 }}
-                  >
-                    End Game
-                  </Button>
-                )}
-                {isGameEnded && (
-                  <Button
-                    fullWidth
-                    variant="contained"
-                    color="primary"
-                    onClick={() => setGameState(prev => ({ ...prev, isGameStarted: false }))}
-                    startIcon={<ReplayIcon />}
-                    sx={{ mt: 3 }}
-                  >
-                    Play Again
-                  </Button>
-                )}
-              </>
-            )}
-          </Box>
-        )}
-        
+                </Box>
+              </Grid>
+              <Grid item xs={12} md={7}>
+                <Paper variant="outlined" sx={{ p: { xs: 2.5, sm: 3.5 }, borderRadius: 3 }}>
+                  <Typography variant="overline" color="primary">Make it your round</Typography>
+                  <Typography variant="h5" sx={{ mt: 0.5, mb: 0.5 }}>Set Up Your Game</Typography>
+                  <Typography variant="body2" color="text.secondary" sx={{ mb: 3 }}>Everyone plays. Only the spy is in the dark.</Typography>
+                  <Grid container spacing={2.5}>
+                    <Grid item xs={6}>
+                      <TextField fullWidth type="number" label="Players" value={gameState.settings.numberOfPlayers}
+                        onChange={e => setGameState(prev => ({ ...prev, settings: { ...prev.settings, numberOfPlayers: parseInt(e.target.value) } }))}
+                        InputProps={{ startAdornment: <GroupIcon sx={{ mr: 1, color: 'primary.main', fontSize: 20 }} /> }} />
+                    </Grid>
+                    <Grid item xs={6}>
+                      <TextField fullWidth type="number" label="Spies" value={gameState.settings.numberOfSpies}
+                        onChange={e => setGameState(prev => ({ ...prev, settings: { ...prev.settings, numberOfSpies: parseInt(e.target.value) } }))}
+                        InputProps={{ startAdornment: <SecurityIcon sx={{ mr: 1, color: 'primary.main', fontSize: 20 }} /> }} />
+                    </Grid>
+                    <Grid item xs={12}>
+                      <TextField fullWidth type="number" label="Timer (minutes)" value={gameState.settings.timer}
+                        onChange={e => setGameState(prev => ({ ...prev, settings: { ...prev.settings, timer: parseInt(e.target.value) } }))}
+                        InputProps={{ startAdornment: <TimerIcon sx={{ mr: 1, color: 'primary.main', fontSize: 20 }} /> }} />
+                    </Grid>
+                    <Grid item xs={12}>
+                      <FormControl fullWidth>
+                        <InputLabel id="category-label">Category</InputLabel>
+                        <Select labelId="category-label" value={gameState.settings.category.name} label="Category"
+                          onChange={e => { const category = categories.find(c => c.name === e.target.value); if (category) setGameState(prev => ({ ...prev, settings: { ...prev.settings, category } })); }}
+                          startAdornment={<CategoryIcon sx={{ mr: 1, color: 'primary.main', fontSize: 20 }} />}>
+                          {categories.map(category => <MenuItem key={category.name} value={category.name}>{category.name}</MenuItem>)}
+                        </Select>
+                      </FormControl>
+                      <Button fullWidth variant="text" startIcon={<CategoryIcon />} onClick={() => setShowCategoryOptions(true)} sx={{ mt: 0.5 }}>View category options</Button>
+                    </Grid>
+                    <Grid item xs={12}>
+                      <Button fullWidth variant="contained" onClick={startGame} endIcon={<PlayArrowIcon />} sx={{ minHeight: 56, fontSize: '1rem' }}>Start Game</Button>
+                      <Typography variant="caption" color="text.secondary" sx={{ display: 'block', textAlign: 'center', mt: 1.5 }}>One device. Pass it around. Keep your role secret.</Typography>
+                    </Grid>
+                  </Grid>
+                </Paper>
+              </Grid>
+            </Grid>
+          ) : isRevealPhase ? (
+            <Box sx={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 2.5, maxWidth: 440, mx: 'auto' }}>
+              <Box sx={{ textAlign: 'center' }}>
+                <Typography variant="overline" color="primary">The secret handoff · {currentPlayerIndex + 1} / {gameState.players.length}</Typography>
+                <Typography variant="h4" sx={{ mt: 1 }}>Player {currentPlayerIndex + 1}'s Turn</Typography>
+                <Typography color="text.secondary" variant="body2" sx={{ mt: 1 }}>Pass the phone. Everyone else, look away.</Typography>
+              </Box>
+              <RoleCard player={gameState.players[currentPlayerIndex]} visible={isCardVisible} onClick={handleRevealInteraction} hideHint="Tap to hide and pass" />
+              <Box sx={{ display: 'flex', width: '100%', gap: 0.75 }} aria-label={`Player ${currentPlayerIndex + 1} of ${gameState.players.length}`}>
+                {gameState.players.map((player, index) => <Box key={player.id} sx={{ flex: 1, height: 4, borderRadius: 2, bgcolor: index <= currentPlayerIndex ? 'primary.main' : 'divider' }} />)}
+              </Box>
+              <Typography variant="caption" color="text.secondary">Your round begins once everyone has seen their card.</Typography>
+            </Box>
+          ) : (
+            <>
+              <Paper variant="outlined" sx={{ p: { xs: 3, sm: 4 }, borderRadius: 3, textAlign: 'center', mb: 3 }}>
+                <Chip size="small" icon={<CategoryIcon />} label={gameState.settings.category.name} variant="outlined" sx={{ mb: 2, maxWidth: '100%' }} />
+                <Typography variant="overline" component="div" color="text.secondary">Time remaining</Typography>
+                <Typography component="div" aria-label={`Time Remaining: ${formatTime(gameState.currentTime)}`} sx={{ fontSize: { xs: '5rem', sm: '7rem' }, fontWeight: 750, letterSpacing: '-0.06em', lineHeight: 1.15, fontVariantNumeric: 'tabular-nums', color: !isGameEnded && gameState.currentTime <= 60 ? 'error.main' : 'text.primary' }}>{formatTime(gameState.currentTime)}</Typography>
+                <Typography color={isGameEnded ? 'primary' : 'text.secondary'} sx={{ mt: 1, mb: 3 }}>{isGameEnded ? 'Game Over!' : 'Game in Progress'}</Typography>
+                <LinearProgress variant="determinate" value={Math.max(0, Math.min(100, gameState.currentTime / (gameState.settings.timer * 60) * 100))} aria-label="Round time remaining" color={!isGameEnded && gameState.currentTime <= 60 ? 'error' : 'primary'} sx={{ height: 5, borderRadius: 4, bgcolor: 'divider' }} />
+              </Paper>
+              <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mb: 2 }}>
+                <Typography variant="h6">{isGameEnded ? 'The reveal' : 'Around the table'}</Typography>
+                <Typography variant="body2" color="text.secondary">{gameState.players.length} players</Typography>
+              </Box>
+              <Grid container spacing={1.5}>
+                {gameState.players.map(player => (
+                  <Grid item xs={6} sm={isGameEnded ? 6 : 3} key={player.id}>
+                    <Card variant="outlined" sx={{ p: 2.5, minHeight: isGameEnded ? 180 : 100, height: '100%', borderRadius: 3, borderColor: isGameEnded && player.isSpy ? alpha(theme.palette.error.main, 0.5) : 'divider' }}>
+                      <Typography sx={{ fontWeight: 650 }}>Player {player.id}</Typography>
+                      {isGameEnded ? (
+                        <>
+                          <Typography variant="overline" color={player.isSpy ? 'error' : 'primary'} sx={{ display: 'block', mt: 2 }}>{player.isSpy ? 'SPY' : 'CIVILIAN'}</Typography>
+                          <Typography sx={{ fontWeight: 600, overflowWrap: 'anywhere', mt: 0.5 }}>{player.isSpy ? 'You are the Spy!' : player.location}</Typography>
+                        </>
+                      ) : <Typography variant="body2" color="text.secondary" sx={{ mt: 1 }}>Role hidden</Typography>}
+                    </Card>
+                  </Grid>
+                ))}
+              </Grid>
+              {!isGameEnded ? (
+                <Button fullWidth variant="outlined" color="secondary" onClick={handleEndGame} startIcon={<StopIcon />} sx={{ mt: 3 }}>End Game</Button>
+              ) : (
+                <Button fullWidth variant="contained" onClick={() => setGameState(prev => ({ ...prev, isGameStarted: false }))} endIcon={<ReplayIcon />} sx={{ mt: 3 }}>Play Again</Button>
+              )}
+            </>
+          )}
+        </Box>
+        <Typography component="footer" variant="caption" color="text.secondary" sx={{ textAlign: 'center', mt: { xs: 4, sm: 6 }, pb: 1 }}>A little suspicion brings us together.</Typography>
       </Container>
     </Box>
   );
