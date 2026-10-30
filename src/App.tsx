@@ -24,6 +24,7 @@ import {
   DialogActions
 } from '@mui/material';
 import { categories } from './data/gameData';
+import CategoryOptionsDialog from './components/CategoryOptionsDialog';
 import { GameState, GameSettings, Player } from './types/game';
 import SecurityIcon from '@mui/icons-material/Security';
 import TimerIcon from '@mui/icons-material/Timer';
@@ -109,8 +110,10 @@ const App: React.FC = () => {
   const [newPlayerCard, setNewPlayerCard] = useState<Player | null>(null);
   const [isNewPlayerCardVisible, setIsNewPlayerCardVisible] = useState(false);
   const [hasViewedNewPlayerCard, setHasViewedNewPlayerCard] = useState(false);
+  const [showCategoryOptions, setShowCategoryOptions] = useState(false);
 
   const startGame = () => {
+    setShowCategoryOptions(false);
     playSound(gameStartSound);
     const { numberOfPlayers, numberOfSpies, category } = gameState.settings;
     
@@ -474,6 +477,13 @@ const App: React.FC = () => {
           </Box>
         </Box>
 
+        {!gameState.isGameStarted && showCategoryOptions && (
+          <CategoryOptionsDialog
+            category={gameState.settings.category}
+            onClose={() => setShowCategoryOptions(false)}
+          />
+        )}
+
         {/* Add Player Dialog */}
         <Dialog
           open={showAddPlayerDialog}
@@ -700,6 +710,15 @@ const App: React.FC = () => {
                       ))}
                     </Select>
                   </FormControl>
+                  <Button
+                    fullWidth
+                    variant="outlined"
+                    startIcon={<CategoryIcon />}
+                    onClick={() => setShowCategoryOptions(true)}
+                    sx={{ mt: 1 }}
+                  >
+                    View category options
+                  </Button>
                 </Grid>
                 <Grid item xs={12}>
                   <Button
@@ -900,4 +919,4 @@ const App: React.FC = () => {
   );
 };
 
-export default App; 
+export default App;
