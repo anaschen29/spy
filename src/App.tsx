@@ -108,6 +108,7 @@ const App: React.FC = () => {
   const [showAddPlayerDialog, setShowAddPlayerDialog] = useState(false);
   const [newPlayerCard, setNewPlayerCard] = useState<Player | null>(null);
   const [isNewPlayerCardVisible, setIsNewPlayerCardVisible] = useState(false);
+  const [hasViewedNewPlayerCard, setHasViewedNewPlayerCard] = useState(false);
 
   const startGame = () => {
     playSound(gameStartSound);
@@ -173,7 +174,7 @@ const App: React.FC = () => {
 
   useEffect(() => {
     const handleKeyPress = (event: KeyboardEvent) => {
-      if (event.code === 'Space' && isRevealPhase) {
+      if (event.code === 'Space' && isRevealPhase && !showAddPlayerDialog) {
         if (isCardVisible) {
           // Hide current card and move to next player
           setIsCardVisible(false);
@@ -196,7 +197,7 @@ const App: React.FC = () => {
     };
 
     const handleTouch = (event: TouchEvent) => {
-      if (isRevealPhase) {
+      if (isRevealPhase && !showAddPlayerDialog) {
         event.preventDefault(); // Prevent scrolling
         if (isCardVisible) {
           // Hide current card and move to next player
@@ -225,7 +226,7 @@ const App: React.FC = () => {
       window.removeEventListener('keydown', handleKeyPress);
       window.removeEventListener('touchstart', handleTouch);
     };
-  }, [isRevealPhase, currentPlayerIndex, isCardVisible, gameState.players.length]);
+  }, [isRevealPhase, currentPlayerIndex, isCardVisible, gameState.players.length, showAddPlayerDialog]);
 
   const formatTime = (seconds: number): string => {
     const minutes = Math.floor(seconds / 60);
@@ -273,6 +274,7 @@ const App: React.FC = () => {
 
     setNewPlayerCard(newPlayer);
     setIsNewPlayerCardVisible(false);
+    setHasViewedNewPlayerCard(false);
     setShowAddPlayerDialog(true);
   };
 
@@ -288,28 +290,26 @@ const App: React.FC = () => {
     }
   };
 
-  // Add keyboard and touch handlers for new player card reveal
-  useEffect(() => {
-    const handleKeyPress = (event: KeyboardEvent) => {
-      if (event.code === 'Space' && showAddPlayerDialog && !isNewPlayerCardVisible) {
-        setIsNewPlayerCardVisible(true);
-      }
-    };
+  const toggleNewPlayerCard = () => {
+    setIsNewPlayerCardVisible(visible => !visible);
+    setHasViewedNewPlayerCard(true);
+  };
 
-    const handleTouch = (event: TouchEvent) => {
-      if (showAddPlayerDialog && !isNewPlayerCardVisible) {
-        event.preventDefault();
-        setIsNewPlayerCardVisible(true);
-      }
+  // Touch interactions use the card's click handler so dialog buttons remain usable.
+  useEffect(() => {
+    if (!showAddPlayerDialog) return;
+
+    const handleKeyPress = (event: KeyboardEvent) => {
+      if (event.code !== 'Space' || event.repeat) return;
+      if (event.target instanceof Element &&
+          event.target.closest('button, input, select, textarea, [role="button"]')) return;
+      event.preventDefault();
+      toggleNewPlayerCard();
     };
 
     window.addEventListener('keydown', handleKeyPress);
-    window.addEventListener('touchstart', handleTouch, { passive: false });
-    return () => {
-      window.removeEventListener('keydown', handleKeyPress);
-      window.removeEventListener('touchstart', handleTouch);
-    };
-  }, [showAddPlayerDialog, isNewPlayerCardVisible]);
+    return () => window.removeEventListener('keydown', handleKeyPress);
+  }, [showAddPlayerDialog]);
 
   const handleAddPlayerClick = () => {
     addPlayer();
@@ -319,12 +319,6 @@ const App: React.FC = () => {
     setShowAddPlayerDialog(false);
     setIsNewPlayerCardVisible(false);
     setNewPlayerCard(null);
-  };
-
-  const handleCardClick = () => {
-    if (!isNewPlayerCardVisible) {
-      setIsNewPlayerCardVisible(true);
-    }
   };
 
   const handleAddAnotherPlayer = () => {
@@ -526,7 +520,18 @@ const App: React.FC = () => {
                     transform: 'scale(1.02)'
                   }
                 }}
-                onClick={handleCardClick}
+                onClick={toggleNewPlayerCard}
+                role="button"
+                tabIndex={0}
+                aria-label={isNewPlayerCardVisible ? 'Hide new player role' : 'Reveal new player role'}
+                aria-pressed={isNewPlayerCardVisible}
+                onKeyDown={event => {
+                  if (event.code === 'Space' || event.key === 'Enter') {
+                    event.preventDefault();
+                    event.stopPropagation();
+                    if (!event.repeat) toggleNewPlayerCard();
+                  }
+                }}
               >
                 <CardContent sx={{ 
                   flexGrow: 1, 
@@ -576,7 +581,7 @@ const App: React.FC = () => {
               onClick={handleAddAnotherPlayer} 
               color="primary" 
               variant="contained"
-              disabled={!isNewPlayerCardVisible}
+              disabled={!hasViewedNewPlayerCard}
             >
               Add Player & Continue
             </Button>
@@ -584,7 +589,7 @@ const App: React.FC = () => {
               onClick={confirmAddPlayer} 
               color="secondary" 
               variant="contained"
-              disabled={!isNewPlayerCardVisible}
+              disabled={!hasViewedNewPlayerCard}
             >
               Add Player & Close
             </Button>
