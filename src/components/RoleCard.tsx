@@ -10,7 +10,8 @@ interface RoleCardProps {
 
 export default function RoleCard({ player, visible, onClick, hideHint }: RoleCardProps) {
   const theme = useTheme();
-  const color = visible && player.isSpy ? theme.palette.error.main : theme.palette.primary.main;
+  const isRevealedSpy = visible && player.isSpy;
+  const color = isRevealedSpy ? theme.palette.error.main : theme.palette.primary.main;
   return (
     <Card
       component="button"
@@ -22,9 +23,9 @@ export default function RoleCard({ player, visible, onClick, hideHint }: RoleCar
         width: '100%', maxWidth: 440, minHeight: { xs: 310, sm: 360 },
         p: { xs: 3, sm: 4 }, display: 'flex', flexDirection: 'column', alignItems: 'center',
         justifyContent: 'space-between', gap: 3, color: 'text.primary', font: 'inherit',
-        border: '2px solid', borderColor: 'text.primary',
-        background: visible ? theme.palette.background.paper : theme.palette.mode === 'dark' ? '#584723' : '#ffe28a',
-        boxShadow: `5px 5px 0 ${theme.palette.text.primary}`, cursor: 'pointer', borderRadius: 2,
+        border: '2px solid', borderColor: isRevealedSpy ? 'error.main' : 'text.primary',
+        background: isRevealedSpy ? '#57232e' : visible ? theme.palette.background.paper : '#482830',
+        boxShadow: `5px 5px 0 ${isRevealedSpy ? '#b84245' : theme.palette.text.primary}`, cursor: 'pointer', borderRadius: 2,
         transition: 'background 180ms',
         '&:hover': { borderColor: color },
         '&:focus-visible': { outline: `3px solid ${color}`, outlineOffset: 4 }
