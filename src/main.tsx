@@ -1,6 +1,7 @@
 import React from 'react'
 import ReactDOM from 'react-dom/client'
 import { SpeedInsights } from '@vercel/speed-insights/react'
+import { Analytics } from '@vercel/analytics/react'
 import App from './App'
 import { CssBaseline } from '@mui/material'
 import GameTheme from './GameTheme'
@@ -12,6 +13,7 @@ ReactDOM.createRoot(document.getElementById('root')!).render(
       <CssBaseline />
       <App />
       <SpeedInsights />
+      <Analytics />
     </GameTheme>
   </React.StrictMode>,
 )
