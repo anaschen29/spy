@@ -1,21 +1,11 @@
-* {
-  margin: 0;
-  padding: 0;
-  box-sizing: border-box;
+* { box-sizing: border-box; }
+html, body, #root { min-height: 100%; width: 100%; }
+body { margin: 0; -webkit-font-smoothing: antialiased; -moz-osx-font-smoothing: grayscale; }
+button, input { font: inherit; }
+@keyframes role-reveal {
+  from { opacity: 0; transform: perspective(700px) rotateY(-8deg) translateY(4px); }
+  to { opacity: 1; transform: perspective(700px) rotateY(0) translateY(0); }
 }
-
-html, body, #root {
-  height: 100%;
-  width: 100%;
-  background-color: #121212;  /* Dark theme background color */
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after { animation-duration: 0.01ms !important; transition-duration: 0.01ms !important; }
 }
-
-body {
-  margin: 0;
-  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', 'Oxygen',
-    'Ubuntu', 'Cantarell', 'Fira Sans', 'Droid Sans', 'Helvetica Neue',
-    sans-serif;
-  -webkit-font-smoothing: antialiased;
-  -moz-osx-font-smoothing: grayscale;
-  color: #fff;  /* Light text for dark theme */
-} 
