@@ -457,7 +457,7 @@ const App: React.FC = () => {
               }
             }}
           >
-            MSA Spy Game
+            MIT MSA Spy Game
           </Typography>
           <Box sx={{ display: 'flex', gap: 1, position: 'absolute', right: '24px' }}>
             {isRevealPhase && (
@@ -919,41 +919,6 @@ const App: React.FC = () => {
           </Box>
         )}
         
-        {/* CPW Banner - Diagonal */}
-        <Box
-          sx={{
-            position: 'relative',
-            width: '100%',
-            height: '120px',
-            mt: 5,
-            mb: 3,
-            overflow: 'hidden'
-          }}
-        >
-          <Box
-            sx={{
-              position: 'absolute',
-              width: '150%',
-              backgroundColor: 'error.main',
-              color: 'white',
-              padding: '15px 0',
-              top: '50%',
-              left: '50%',
-              transform: 'translate(-50%, -50%) rotate(-10deg)',
-              boxShadow: '0 4px 10px rgba(0,0,0,0.3)',
-              textAlign: 'center',
-              animation: `${keyframes`
-                0% { transform: translate(-50%, -50%) rotate(-10deg) scale(1); }
-                50% { transform: translate(-50%, -50%) rotate(-10deg) scale(1.02); }
-                100% { transform: translate(-50%, -50%) rotate(-10deg) scale(1); }
-              `} 2s infinite ease-in-out`
-            }}
-          >
-            <Typography variant="h5" sx={{ fontWeight: 'bold', letterSpacing: '0.05em' }}>
-              CPW - Limited Edition
-            </Typography>
-          </Box>
-        </Box>
       </Container>
     </Box>
   );
