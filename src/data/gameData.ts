@@ -771,6 +771,8 @@ export const categories: Category[] = [
       { name: "Harry Kane" },
       { name: "Robert Lewandowski" },
       { name: "Sadio Mane" },
+      { name: "Riyad Mahrez" },
+      { name: "Lamine Yamal" },
       { name: "Son Heung-min" },
       { name: "Antoine Griezmann" },
       { name: "Luis Suarez" },
@@ -791,12 +793,7 @@ export const categories: Category[] = [
       { name: "Kaka" },
       { name: "Andrea Pirlo" },
       { name: "Diego Maradona" },
-      { name: "Pele" },
-      { name: "Marta" },
-      { name: "Alex Morgan" },
-      { name: "Megan Rapinoe" },
-      { name: "Alexia Putellas" },
-      { name: "Sam Kerr" }
+      { name: "Pele" }
     ]
   },
   {
