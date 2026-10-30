@@ -26,6 +26,8 @@ import {
 import { categories } from './data/gameData';
 import CategoryOptionsDialog from './components/CategoryOptionsDialog';
 import RoleCard from './components/RoleCard';
+import HowToPlayDialog from './components/HowToPlayDialog';
+import HelpOutlineIcon from '@mui/icons-material/HelpOutline';
 import { useGameTheme } from './GameTheme';
 import { GameState, Player } from './types/game';
 import SecurityIcon from '@mui/icons-material/Security';
@@ -100,6 +102,7 @@ const App: React.FC = () => {
   const [isNewPlayerCardVisible, setIsNewPlayerCardVisible] = useState(false);
   const [hasViewedNewPlayerCard, setHasViewedNewPlayerCard] = useState(false);
   const [showCategoryOptions, setShowCategoryOptions] = useState(false);
+  const [showHowToPlay, setShowHowToPlay] = useState(false);
 
   const startGame = () => {
     setShowCategoryOptions(false);
@@ -166,7 +169,7 @@ const App: React.FC = () => {
   }, [gameState.isGameStarted, gameState.currentTime, isGameEnded, isRevealPhase]);
 
   const handleRevealInteraction = useCallback(() => {
-    if (!isRevealPhase || showAddPlayerDialog) return;
+    if (!isRevealPhase || showAddPlayerDialog || showHowToPlay) return;
     if (!isCardVisible) {
       setIsCardVisible(true);
       return;
@@ -184,10 +187,10 @@ const App: React.FC = () => {
       setIsRevealPhase(false);
       setCurrentPlayerIndex(-1);
     }
-  }, [isRevealPhase, showAddPlayerDialog, isCardVisible, currentPlayerIndex, gameState.players.length]);
+  }, [isRevealPhase, showAddPlayerDialog, showHowToPlay, isCardVisible, currentPlayerIndex, gameState.players.length]);
 
   useEffect(() => {
-    if (!isRevealPhase || showAddPlayerDialog) return;
+    if (!isRevealPhase || showAddPlayerDialog || showHowToPlay) return;
 
     const handleKeyPress = (event: KeyboardEvent) => {
       if (event.target instanceof Element && event.target.closest('button, input, select, textarea, [role="dialog"]')) return;
@@ -200,7 +203,7 @@ const App: React.FC = () => {
     return () => {
       window.removeEventListener('keydown', handleKeyPress);
     };
-  }, [isRevealPhase, showAddPlayerDialog, handleRevealInteraction]);
+  }, [isRevealPhase, showAddPlayerDialog, showHowToPlay, handleRevealInteraction]);
 
   const formatTime = (seconds: number): string => {
     const minutes = Math.floor(seconds / 60);
@@ -309,26 +312,22 @@ const App: React.FC = () => {
   };
 
   return (
-    <Box sx={{ minHeight: '100dvh', bgcolor: 'background.default', backgroundImage: `radial-gradient(ellipse at 10% 0%, ${alpha(theme.palette.primary.main, 0.07)}, transparent 50%)` }}>
-      <Container maxWidth="md" sx={{ py: { xs: 2, sm: 4 }, px: { xs: 2.5, sm: 3 } }}>
+    <Box sx={{ minHeight: '100dvh', bgcolor: 'background.default', backgroundImage: `radial-gradient(${alpha(theme.palette.text.primary, 0.12)} 1px, transparent 1px)`, backgroundSize: '20px 20px' }}>
+      <Container maxWidth="sm" sx={{ py: { xs: 2, sm: 4 }, px: { xs: 2.5, sm: 3 } }}>
         <Box component="header" sx={{ display: 'flex', flexWrap: 'wrap', justifyContent: 'space-between', alignItems: 'center', gap: { xs: 1, sm: 2 }, pb: 3, mb: { xs: 2, sm: 5 }, borderBottom: '1px solid', borderColor: 'divider' }}>
-          <Box sx={{ display: 'flex', alignItems: 'center', gap: 1.5 }}>
-            <Box sx={{ display: 'flex', p: 1.2, borderRadius: 3, color: 'primary.main', bgcolor: alpha(theme.palette.primary.main, 0.1) }}><SecurityIcon /></Box>
-            <Typography component="h1" sx={{ lineHeight: 1.2 }}>
-              <Box component="span" sx={{ display: 'block', fontSize: 11, letterSpacing: '0.16em', fontWeight: 700, color: 'text.secondary' }}>MIT MSA</Box>
-              <Box component="span" sx={{ fontSize: { xs: 22, sm: 24 }, fontWeight: 750, letterSpacing: '-0.04em' }}>Spy Game</Box>
-            </Typography>
-          </Box>
-          <Box sx={{ display: 'flex', alignItems: 'center', gap: 0.5 }}>
-            {isRevealPhase && <Button variant="text" color="secondary" onClick={handleRestart} startIcon={<ReplayIcon />}>Restart</Button>}
-            {gameState.isGameStarted && !isRevealPhase && !isGameEnded && (
-              <Button variant="outlined" sx={{ px: 1.5 }} onClick={handleAddPlayerClick} startIcon={<GroupIcon />}>Add Player</Button>
-            )}
+          <Typography component="h1" sx={{ lineHeight: 1 }}>
+            <Box component="span" sx={{ display: 'block', fontSize: 11, fontWeight: 800, mb: 0.75 }}>MIT MSA</Box>
+            <Box component="span" sx={{ fontSize: { xs: 27, sm: 32 }, fontWeight: 900, letterSpacing: '-0.06em' }}>SPY GAME<span style={{ color: theme.palette.primary.main }}>.</span></Box>
+          </Typography>
+          <Box sx={{ display: 'flex', alignItems: 'center' }}>
+            <IconButton onClick={() => setShowHowToPlay(true)} aria-label="How to play" title="How to play"><HelpOutlineIcon /></IconButton>
             <IconButton onClick={toggleTheme} aria-label={`Switch to ${isDarkMode ? 'light' : 'dark'} mode`} title={`Switch to ${isDarkMode ? 'light' : 'dark'} mode`}>
               {isDarkMode ? <Brightness7Icon /> : <Brightness4Icon />}
             </IconButton>
           </Box>
         </Box>
+
+        {showHowToPlay && <HowToPlayDialog onClose={() => setShowHowToPlay(false)} timerRunning={gameState.isGameStarted && !isRevealPhase && !isGameEnded} />}
 
         {!gameState.isGameStarted && showCategoryOptions && (
           <CategoryOptionsDialog category={gameState.settings.category} onClose={() => setShowCategoryOptions(false)} />
@@ -357,26 +356,22 @@ const App: React.FC = () => {
         </Dialog>
 
         <Box component="main">
+          {gameState.isGameStarted && !isGameEnded && (
+            <Box sx={{ display: 'flex', justifyContent: 'flex-end', mb: 2 }}>
+              {isRevealPhase ? <Button color="secondary" onClick={handleRestart} startIcon={<ReplayIcon />}>Restart</Button> : <Button variant="outlined" onClick={handleAddPlayerClick} startIcon={<GroupIcon />}>Add Player</Button>}
+            </Box>
+          )}
           {!gameState.isGameStarted ? (
-            <Grid container spacing={{ xs: 3, sm: 5 }} alignItems="center">
-              <Grid item xs={12} md={5}>
-                <Typography variant="overline" color="primary">A little mystery. Good company.</Typography>
-                <Typography variant="h2" sx={{ fontSize: { xs: '2.2rem', sm: '3.5rem' }, lineHeight: 1.05, mt: 1.5, mb: 2 }}>One phone.<br />Someone’s a spy.</Typography>
-                <Typography color="text.secondary" sx={{ lineHeight: 1.8, maxWidth: 360 }}>Gather your people. Share a secret. Find out who’s bluffing.</Typography>
-                <Box sx={{ display: { xs: 'none', md: 'grid' }, gap: 2.5, mt: 4 }}>
-                  {['Choose a category together', 'Reveal your roles in private', 'Ask questions. Find the spy.'].map((step, index) => (
-                    <Box key={step} sx={{ display: 'flex', alignItems: 'center', gap: 1.5 }}>
-                      <Box sx={{ width: 28, height: 28, display: 'grid', placeItems: 'center', borderRadius: '50%', border: '1px solid', borderColor: 'divider', fontSize: 12, color: 'primary.main' }}>{index + 1}</Box>
-                      <Typography variant="body2" color="text.secondary">{step}</Typography>
-                    </Box>
-                  ))}
+            <Box>
+              <Box sx={{ mb: 3 }}>
+                <Typography variant="h2" sx={{ fontSize: { xs: '2.5rem', sm: '3.3rem' }, lineHeight: 1.1 }}>Who’s the spy?</Typography>
+                <Typography color="text.secondary" sx={{ mt: 1.5 }}>Pick a category, pass the phone, and keep a straight face.</Typography>
+              </Box>
+              <Paper variant="outlined" sx={{ p: { xs: 2.5, sm: 3.5 }, borderRadius: 2, border: '2px solid', borderColor: 'text.primary', boxShadow: `5px 5px 0 ${theme.palette.text.primary}` }}>
+                <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: 1, mb: 2.5 }}>
+                  <Typography variant="h5">Set up your round</Typography>
+                  <Button size="small" onClick={() => setShowHowToPlay(true)} startIcon={<HelpOutlineIcon />} sx={{ px: 0.5 }}>How to play</Button>
                 </Box>
-              </Grid>
-              <Grid item xs={12} md={7}>
-                <Paper variant="outlined" sx={{ p: { xs: 2.5, sm: 3.5 }, borderRadius: 3 }}>
-                  <Typography variant="overline" color="primary">Make it your round</Typography>
-                  <Typography variant="h5" sx={{ mt: 0.5, mb: 0.5 }}>Set Up Your Game</Typography>
-                  <Typography variant="body2" color="text.secondary" sx={{ mb: 3 }}>Everyone plays. Only the spy is in the dark.</Typography>
                   <Grid container spacing={2.5}>
                     <Grid item xs={6}>
                       <TextField fullWidth type="number" label="Players" value={gameState.settings.numberOfPlayers}
@@ -406,16 +401,15 @@ const App: React.FC = () => {
                     </Grid>
                     <Grid item xs={12}>
                       <Button fullWidth variant="contained" onClick={startGame} endIcon={<PlayArrowIcon />} sx={{ minHeight: 56, fontSize: '1rem' }}>Start Game</Button>
-                      <Typography variant="caption" color="text.secondary" sx={{ display: 'block', textAlign: 'center', mt: 1.5 }}>One device. Pass it around. Keep your role secret.</Typography>
+
                     </Grid>
                   </Grid>
-                </Paper>
-              </Grid>
-            </Grid>
+              </Paper>
+            </Box>
           ) : isRevealPhase ? (
             <Box sx={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 2.5, maxWidth: 440, mx: 'auto' }}>
               <Box sx={{ textAlign: 'center' }}>
-                <Typography variant="overline" color="primary">The secret handoff · {currentPlayerIndex + 1} / {gameState.players.length}</Typography>
+                <Typography variant="overline" color="primary">Player {currentPlayerIndex + 1} / {gameState.players.length}</Typography>
                 <Typography variant="h4" sx={{ mt: 1 }}>Player {currentPlayerIndex + 1}'s Turn</Typography>
                 <Typography color="text.secondary" variant="body2" sx={{ mt: 1 }}>Pass the phone. Everyone else, look away.</Typography>
               </Box>
@@ -423,11 +417,11 @@ const App: React.FC = () => {
               <Box sx={{ display: 'flex', width: '100%', gap: 0.75 }} aria-label={`Player ${currentPlayerIndex + 1} of ${gameState.players.length}`}>
                 {gameState.players.map((player, index) => <Box key={player.id} sx={{ flex: 1, height: 4, borderRadius: 2, bgcolor: index <= currentPlayerIndex ? 'primary.main' : 'divider' }} />)}
               </Box>
-              <Typography variant="caption" color="text.secondary">Your round begins once everyone has seen their card.</Typography>
+              <Typography variant="caption" color="text.secondary">Seen it? Hide it. Pass it on.</Typography>
             </Box>
           ) : (
             <>
-              <Paper variant="outlined" sx={{ p: { xs: 3, sm: 4 }, borderRadius: 3, textAlign: 'center', mb: 3 }}>
+              <Paper variant="outlined" sx={{ p: { xs: 3, sm: 4 }, borderRadius: 2, border: '2px solid', borderColor: 'text.primary', boxShadow: `5px 5px 0 ${theme.palette.text.primary}`, textAlign: 'center', mb: 3 }}>
                 <Chip size="small" icon={<CategoryIcon />} label={gameState.settings.category.name} variant="outlined" sx={{ mb: 2, maxWidth: '100%' }} />
                 <Typography variant="overline" component="div" color="text.secondary">Time remaining</Typography>
                 <Typography component="div" aria-label={`Time Remaining: ${formatTime(gameState.currentTime)}`} sx={{ fontSize: { xs: '5rem', sm: '7rem' }, fontWeight: 750, letterSpacing: '-0.06em', lineHeight: 1.15, fontVariantNumeric: 'tabular-nums', color: !isGameEnded && gameState.currentTime <= 60 ? 'error.main' : 'text.primary' }}>{formatTime(gameState.currentTime)}</Typography>
@@ -435,7 +429,7 @@ const App: React.FC = () => {
                 <LinearProgress variant="determinate" value={Math.max(0, Math.min(100, gameState.currentTime / (gameState.settings.timer * 60) * 100))} aria-label="Round time remaining" color={!isGameEnded && gameState.currentTime <= 60 ? 'error' : 'primary'} sx={{ height: 5, borderRadius: 4, bgcolor: 'divider' }} />
               </Paper>
               <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mb: 2 }}>
-                <Typography variant="h6">{isGameEnded ? 'The reveal' : 'Around the table'}</Typography>
+                <Typography variant="h6">{isGameEnded ? 'The reveal' : 'The suspects'}</Typography>
                 <Typography variant="body2" color="text.secondary">{gameState.players.length} players</Typography>
               </Box>
               <Grid container spacing={1.5}>
@@ -461,7 +455,7 @@ const App: React.FC = () => {
             </>
           )}
         </Box>
-        <Typography component="footer" variant="caption" color="text.secondary" sx={{ textAlign: 'center', mt: { xs: 4, sm: 6 }, pb: 1 }}>A little suspicion brings us together.</Typography>
+
       </Container>
     </Box>
   );

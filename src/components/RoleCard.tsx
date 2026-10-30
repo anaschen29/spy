@@ -1,5 +1,4 @@
-import { Box, Card, Typography, alpha, useTheme } from '@mui/material';
-import SecurityIcon from '@mui/icons-material/Security';
+import { Box, Card, Typography, useTheme } from '@mui/material';
 import { Player } from '../types/game';
 
 interface RoleCardProps {
@@ -23,10 +22,10 @@ export default function RoleCard({ player, visible, onClick, hideHint }: RoleCar
         width: '100%', maxWidth: 440, minHeight: { xs: 310, sm: 360 },
         p: { xs: 3, sm: 4 }, display: 'flex', flexDirection: 'column', alignItems: 'center',
         justifyContent: 'space-between', gap: 3, color: 'text.primary', font: 'inherit',
-        border: '1px solid', borderColor: visible ? alpha(color, 0.65) : 'divider',
-        background: visible ? alpha(color, 0.07) : theme.palette.background.paper,
-        boxShadow: `0 18px 50px ${alpha('#000', 0.12)}`, cursor: 'pointer', borderRadius: 3,
-        transition: 'border-color 180ms, background 180ms',
+        border: '2px solid', borderColor: 'text.primary',
+        background: visible ? theme.palette.background.paper : theme.palette.mode === 'dark' ? '#584723' : '#ffe28a',
+        boxShadow: `5px 5px 0 ${theme.palette.text.primary}`, cursor: 'pointer', borderRadius: 2,
+        transition: 'background 180ms',
         '&:hover': { borderColor: color },
         '&:focus-visible': { outline: `3px solid ${color}`, outlineOffset: 4 }
       }}
@@ -40,16 +39,19 @@ export default function RoleCard({ player, visible, onClick, hideHint }: RoleCar
               {player.isSpy ? 'You are the Spy!' : player.location}
             </Typography>
             <Typography variant="body2" color="text.secondary" sx={{ mt: 2 }}>
-              {player.isSpy ? 'Blend in. Listen closely. Stay undiscovered.' : 'You know the answer. Can you spot who doesn’t?'}
+              {player.isSpy ? 'Act natural. You’ve got this. Probably.' : 'You’re in on it. Don’t make it too obvious.'}
             </Typography>
           </>
         ) : (
           <>
-            <Box sx={{ display: 'inline-flex', p: 2.5, borderRadius: '50%', bgcolor: alpha(color, 0.09), color, mb: 2 }}>
-              <SecurityIcon sx={{ fontSize: 36 }} />
-            </Box>
-            <Typography variant="h5">Your secret awaits.</Typography>
-            <Typography variant="body2" color="text.secondary" sx={{ mt: 1 }}>Make sure only you can see the screen.</Typography>
+            <svg viewBox="0 0 160 80" width="160" height="80" aria-hidden="true" style={{ marginBottom: 16 }}>
+              <ellipse cx="43" cy="40" rx="30" ry="35" fill="#fffdf6" stroke="#242337" strokeWidth="3" />
+              <ellipse cx="117" cy="40" rx="30" ry="35" fill="#fffdf6" stroke="#242337" strokeWidth="3" />
+              <circle cx="53" cy="43" r="11" fill="#242337" />
+              <circle cx="127" cy="43" r="11" fill="#242337" />
+            </svg>
+            <Typography variant="h5">No peeking.</Typography>
+            <Typography variant="body2" color="text.secondary" sx={{ mt: 1 }}>This one’s just for you.</Typography>
           </>
         )}
       </Box>
