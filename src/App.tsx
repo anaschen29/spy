@@ -312,7 +312,12 @@ const App: React.FC = () => {
   };
 
   return (
-    <Box sx={{ minHeight: '100dvh', bgcolor: 'background.default', backgroundImage: `radial-gradient(${alpha(theme.palette.text.primary, 0.12)} 1px, transparent 1px)`, backgroundSize: '20px 20px' }}>
+    <Box sx={{
+      minHeight: '100dvh',
+      bgcolor: 'background.default',
+      backgroundImage: `radial-gradient(${alpha(theme.palette.text.primary, 0.12)} 1px, transparent 1px), radial-gradient(ellipse at 0% 0%, ${alpha('#df4038', isDarkMode ? 0.24 : 0.18)}, transparent 60%), radial-gradient(ellipse at 100% 100%, ${alpha('#df4038', isDarkMode ? 0.18 : 0.13)}, transparent 55%)`,
+      backgroundSize: '20px 20px, 100% 100%, 100% 100%'
+    }}>
       <Container maxWidth="sm" sx={{ py: { xs: 2, sm: 4 }, px: { xs: 2.5, sm: 3 } }}>
         <Box component="header" sx={{ display: 'flex', flexWrap: 'wrap', justifyContent: 'space-between', alignItems: 'center', gap: { xs: 1, sm: 2 }, pb: 3, mb: { xs: 2, sm: 5 }, borderBottom: '1px solid', borderColor: 'divider' }}>
           <Typography component="h1" sx={{ lineHeight: 1 }}>
