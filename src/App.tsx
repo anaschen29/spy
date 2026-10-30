@@ -28,7 +28,6 @@ import CategoryOptionsDialog from './components/CategoryOptionsDialog';
 import RoleCard from './components/RoleCard';
 import HowToPlayDialog from './components/HowToPlayDialog';
 import HelpOutlineIcon from '@mui/icons-material/HelpOutline';
-import { useGameTheme } from './GameTheme';
 import { GameState, Player } from './types/game';
 import SecurityIcon from '@mui/icons-material/Security';
 import TimerIcon from '@mui/icons-material/Timer';
@@ -37,33 +36,28 @@ import CategoryIcon from '@mui/icons-material/Category';
 import PlayArrowIcon from '@mui/icons-material/PlayArrow';
 import StopIcon from '@mui/icons-material/Stop';
 import ReplayIcon from '@mui/icons-material/Replay';
-import Brightness4Icon from '@mui/icons-material/Brightness4';
-import Brightness7Icon from '@mui/icons-material/Brightness7';
 const App: React.FC = () => {
   const theme = useTheme();
   const isMobile = useMediaQuery(theme.breakpoints.down('sm'));
-  const { isDarkMode, toggleMode } = useGameTheme();
   
   // Sound effects
   const cardFlipSound = useRef<HTMLAudioElement>(null);
   const gameStartSound = useRef<HTMLAudioElement>(null);
   const gameEndSound = useRef<HTMLAudioElement>(null);
-  const buttonClickSound = useRef<HTMLAudioElement>(null);
 
   // Initialize sound effects
   useEffect(() => {
     cardFlipSound.current = new Audio('/sounds/card-flip.mp3');
     gameStartSound.current = new Audio('/sounds/game-start.mp3');
     gameEndSound.current = new Audio('/sounds/game-end.mp3');
-    buttonClickSound.current = new Audio('/sounds/button-click.mp3');
 
     // Set volume
-    [cardFlipSound, gameStartSound, gameEndSound, buttonClickSound].forEach(sound => {
+    [cardFlipSound, gameStartSound, gameEndSound].forEach(sound => {
       if (sound.current) sound.current.volume = 0.5;
     });
 
     return () => {
-      [cardFlipSound, gameStartSound, gameEndSound, buttonClickSound].forEach(sound => {
+      [cardFlipSound, gameStartSound, gameEndSound].forEach(sound => {
         if (sound.current) {
           sound.current.pause();
           sound.current = null;
@@ -216,15 +210,6 @@ const App: React.FC = () => {
     setIsGameEnded(true);
   };
 
-  const handleButtonClick = () => {
-    playSound(buttonClickSound);
-  };
-
-  const toggleTheme = () => {
-    toggleMode();
-    handleButtonClick();
-  };
-
   const handleRestart = () => {
     setShowRestartDialog(true);
   };
@@ -315,7 +300,7 @@ const App: React.FC = () => {
     <Box sx={{
       minHeight: '100dvh',
       bgcolor: 'background.default',
-      backgroundImage: `radial-gradient(${alpha(theme.palette.text.primary, 0.12)} 1px, transparent 1px), radial-gradient(ellipse at 0% 0%, ${alpha('#df4038', isDarkMode ? 0.24 : 0.18)}, transparent 60%), radial-gradient(ellipse at 100% 100%, ${alpha('#df4038', isDarkMode ? 0.18 : 0.13)}, transparent 55%)`,
+      backgroundImage: `radial-gradient(${alpha(theme.palette.text.primary, 0.12)} 1px, transparent 1px), radial-gradient(ellipse at 0% 0%, ${alpha('#df4038', 0.42)}, transparent 60%), radial-gradient(ellipse at 100% 100%, ${alpha('#df4038', 0.32)}, transparent 55%)`,
       backgroundSize: '20px 20px, 100% 100%, 100% 100%'
     }}>
       <Container maxWidth="sm" sx={{ py: { xs: 2, sm: 4 }, px: { xs: 2.5, sm: 3 } }}>
@@ -326,9 +311,6 @@ const App: React.FC = () => {
           </Typography>
           <Box sx={{ display: 'flex', alignItems: 'center' }}>
             <IconButton onClick={() => setShowHowToPlay(true)} aria-label="How to play" title="How to play"><HelpOutlineIcon /></IconButton>
-            <IconButton onClick={toggleTheme} aria-label={`Switch to ${isDarkMode ? 'light' : 'dark'} mode`} title={`Switch to ${isDarkMode ? 'light' : 'dark'} mode`}>
-              {isDarkMode ? <Brightness7Icon /> : <Brightness4Icon />}
-            </IconButton>
           </Box>
         </Box>
 
@@ -440,7 +422,7 @@ const App: React.FC = () => {
               <Grid container spacing={1.5}>
                 {gameState.players.map(player => (
                   <Grid item xs={6} sm={isGameEnded ? 6 : 3} key={player.id}>
-                    <Card variant="outlined" sx={{ p: 2.5, minHeight: isGameEnded ? 180 : 100, height: '100%', borderRadius: 3, borderColor: isGameEnded && player.isSpy ? alpha(theme.palette.error.main, 0.5) : 'divider' }}>
+                    <Card variant="outlined" sx={{ p: 2.5, minHeight: isGameEnded ? 180 : 100, height: '100%', borderRadius: 3, bgcolor: isGameEnded && player.isSpy ? '#57232e' : 'background.paper', borderColor: isGameEnded && player.isSpy ? 'error.main' : 'divider' }}>
                       <Typography sx={{ fontWeight: 650 }}>Player {player.id}</Typography>
                       {isGameEnded ? (
                         <>
