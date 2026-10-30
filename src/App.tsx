@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useRef } from 'react';
+import React, { useState, useEffect, useRef, useCallback } from 'react';
 import { 
   Container, 
   Box, 
@@ -152,72 +152,60 @@ const App: React.FC = () => {
       currentTime: 0
     }));
     setIsRevealPhase(true);
+    setIsCardVisible(false);
     setCurrentPlayerIndex(0);
     setIsGameEnded(false);
   };
 
   useEffect(() => {
-    let interval: NodeJS.Timeout;
-    if (gameState.isGameStarted && !isRevealPhase && gameState.currentTime > 0 && !isGameEnded) {
-      interval = setInterval(() => {
-        setGameState(prev => ({
-          ...prev,
-          currentTime: prev.currentTime - 1
-        }));
-      }, 1000);
-    } else if (gameState.currentTime === 0 && !isGameEnded && !isRevealPhase) {
-      // Auto end game when time runs out
+    if (!gameState.isGameStarted || isRevealPhase || isGameEnded) return;
+    if (gameState.currentTime === 0) {
       setIsGameEnded(true);
+      return;
     }
+
+    const interval = setInterval(() => {
+      setGameState(prev => ({
+        ...prev,
+        currentTime: Math.max(0, prev.currentTime - 1)
+      }));
+    }, 1000);
     return () => clearInterval(interval);
   }, [gameState.isGameStarted, gameState.currentTime, isGameEnded, isRevealPhase]);
 
+  const handleRevealInteraction = useCallback(() => {
+    if (!isRevealPhase || showAddPlayerDialog) return;
+    if (!isCardVisible) {
+      setIsCardVisible(true);
+      return;
+    }
+
+    setIsCardVisible(false);
+    if (currentPlayerIndex < gameState.players.length - 1) {
+      setCurrentPlayerIndex(prev => prev + 1);
+    } else {
+      // Every input starts the countdown when the final card is hidden.
+      setGameState(prev => ({
+        ...prev,
+        currentTime: prev.settings.timer * 60
+      }));
+      setIsRevealPhase(false);
+      setCurrentPlayerIndex(-1);
+    }
+  }, [isRevealPhase, showAddPlayerDialog, isCardVisible, currentPlayerIndex, gameState.players.length]);
+
   useEffect(() => {
+    if (!isRevealPhase || showAddPlayerDialog) return;
+
     const handleKeyPress = (event: KeyboardEvent) => {
-      if (event.code === 'Space' && isRevealPhase && !showAddPlayerDialog) {
-        if (isCardVisible) {
-          // Hide current card and move to next player
-          setIsCardVisible(false);
-          if (currentPlayerIndex < gameState.players.length - 1) {
-            setCurrentPlayerIndex(prev => prev + 1);
-          } else {
-            // All cards have been shown, start the game and timer
-            setIsRevealPhase(false);
-            setCurrentPlayerIndex(-1);
-            setGameState(prev => ({
-              ...prev,
-              currentTime: prev.settings.timer * 60
-            }));
-          }
-        } else {
-          // Show current card
-          setIsCardVisible(true);
-        }
+      if (event.code === 'Space') {
+        event.preventDefault();
+        if (!event.repeat) handleRevealInteraction();
       }
     };
-
     const handleTouch = (event: TouchEvent) => {
-      if (isRevealPhase && !showAddPlayerDialog) {
-        event.preventDefault(); // Prevent scrolling
-        if (isCardVisible) {
-          // Hide current card and move to next player
-          setIsCardVisible(false);
-          if (currentPlayerIndex < gameState.players.length - 1) {
-            setCurrentPlayerIndex(prev => prev + 1);
-          } else {
-            // All cards have been shown, start the game and timer
-            setIsRevealPhase(false);
-            setCurrentPlayerIndex(-1);
-            setGameState(prev => ({
-              ...prev,
-              currentTime: prev.settings.timer * 60
-            }));
-          }
-        } else {
-          // Show current card
-          setIsCardVisible(true);
-        }
-      }
+      event.preventDefault(); // Suppress the synthetic click so a tap advances once.
+      handleRevealInteraction();
     };
 
     window.addEventListener('keydown', handleKeyPress);
@@ -226,7 +214,7 @@ const App: React.FC = () => {
       window.removeEventListener('keydown', handleKeyPress);
       window.removeEventListener('touchstart', handleTouch);
     };
-  }, [isRevealPhase, currentPlayerIndex, isCardVisible, gameState.players.length, showAddPlayerDialog]);
+  }, [isRevealPhase, showAddPlayerDialog, handleRevealInteraction]);
 
   const formatTime = (seconds: number): string => {
     const minutes = Math.floor(seconds / 60);
@@ -457,7 +445,7 @@ const App: React.FC = () => {
               }
             }}
           >
-            MSA Spy Game
+            MIT MSA Spy Game
           </Typography>
           <Box sx={{ display: 'flex', gap: 1, position: 'absolute', right: '24px' }}>
             {isRevealPhase && (
@@ -769,19 +757,7 @@ const App: React.FC = () => {
                       transform: 'scale(1.02)'
                     }
                   }}
-                  onClick={() => {
-                    if (isCardVisible) {
-                      setIsCardVisible(false);
-                      if (currentPlayerIndex < gameState.players.length - 1) {
-                        setCurrentPlayerIndex(prev => prev + 1);
-                      } else {
-                        setIsRevealPhase(false);
-                        setCurrentPlayerIndex(-1);
-                      }
-                    } else {
-                      setIsCardVisible(true);
-                    }
-                  }}
+                  onClick={handleRevealInteraction}
                 >
                   <CardContent sx={{ 
                     flexGrow: 1, 
@@ -919,41 +895,6 @@ const App: React.FC = () => {
           </Box>
         )}
         
-        {/* CPW Banner - Diagonal */}
-        <Box
-          sx={{
-            position: 'relative',
-            width: '100%',
-            height: '120px',
-            mt: 5,
-            mb: 3,
-            overflow: 'hidden'
-          }}
-        >
-          <Box
-            sx={{
-              position: 'absolute',
-              width: '150%',
-              backgroundColor: 'error.main',
-              color: 'white',
-              padding: '15px 0',
-              top: '50%',
-              left: '50%',
-              transform: 'translate(-50%, -50%) rotate(-10deg)',
-              boxShadow: '0 4px 10px rgba(0,0,0,0.3)',
-              textAlign: 'center',
-              animation: `${keyframes`
-                0% { transform: translate(-50%, -50%) rotate(-10deg) scale(1); }
-                50% { transform: translate(-50%, -50%) rotate(-10deg) scale(1.02); }
-                100% { transform: translate(-50%, -50%) rotate(-10deg) scale(1); }
-              `} 2s infinite ease-in-out`
-            }}
-          >
-            <Typography variant="h5" sx={{ fontWeight: 'bold', letterSpacing: '0.05em' }}>
-              CPW - Limited Edition
-            </Typography>
-          </Box>
-        </Box>
       </Container>
     </Box>
   );
